@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Образователна Играчка</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        #splash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999; color: white; text-align: center;
+        }
+        #splash h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        #splash p { font-size: 1.2em; margin-bottom: 30px; opacity: 0.9; }
+        #startBtn {
+            background: #4CAF50; color: white; border: none; padding: 20px 60px;
+            font-size: 1.5em; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #startBtn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        
+        #info {
+            position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8);
+            color: white; padding: 15px 20px; border-radius: 15px; z-index: 1000;
+            max-width: 200px; backdrop-filter: blur(10px);
+        }
+        #info h3 { margin: 0 0 10px 0; font-size: 1.1em; }
+        #score { font-size: 2em; font-weight: bold; color: #4CAF50; }
+        
+        #mode-selector {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; display: flex; gap: 10px;
+        }
+        .mode-btn {
+            background: rgba(255,255,255,0.9); border: 3px solid #667eea;
+            padding: 12px 25px; border-radius: 25px; cursor: pointer;
+            font-size: 1em; font-weight: bold; color: #333; transition: all 0.2s;
+        }
+        .mode-btn:hover, .mode-btn.active { background: #667eea; color: white; }
+        
+        #question-display {
+            position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.95); padding: 20px 40px; border-radius: 20px;
+            font-size: 1.8em; font-weight: bold; color: #333;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; text-align: center; min-width: 200px;
+        }
+        
+        #feedback {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 4em; z-index: 2000; display: none; animation: popIn 0.5s ease-out;
+        }
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div id="splash">
+        <h1>🧸 AR Образователна Играчка</h1>
+        <p>Насочете камерата към маркера и започнете да учите!</p>
+        <button id="startBtn" onclick="startApp()">🚀 Започни!</button>
+    </div>
+    
+    <div id="info" class="hidden">
+        <h3>⭐ Точки</h3>
+        <div id="score">0</div>
+    </div>
+    
+    <div id="question-display" class="hidden">2 + 3 = ?</div>
+    
+    <div id="mode-selector" class="hidden">
+        <button class="mode-btn active" onclick="setMode('math')">🔢 Математика</button>
+        <button class="mode-btn" onclick="setMode('alphabet')">🔤 Азбука</button>
+        <button class="mode-btn" onclick="setMode('quiz')">❓ Викторина</button>
+    </div>
+    
+    <div id="feedback"></div>
+    
+    <a-scene id="arScene" class="hidden" embedded
+        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; antialias: true;">
+        
+        <a-marker preset="hiro" id="mainMarker">
+            <a-entity id="math-content">
+                <a-box position="-0.6 0.3 0" scale="0.4 0.4 0.4" color="#4CAF50" class="clickable answer-btn"
+                    animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear;"></a-box>
+                <a-text value="5" position="-0.6 0.3 0.21" align="center" color="white" scale="2 2 2"></a-text>
+                
+                <a-box position="0 0.3 0" scale="0.4 0.4 0.4" color="#f44336" class="clickable answer-btn"
+                    animation="property: rotation; to: 0 360 0; loop: true; dur: 3500; easing: linear;"></a-box>
+                <a-text value="4" position="0 0.3 0.21" align="center" color="white" scale="2 2 2"></a-text>
+                
+                <a-box position="0.6 0.3 0" scale="0.4 0.4 0.4" color="#2196F3" class="clickable answer-btn"
+                    animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear;"></a-box>
+                <a-text value="6" position="0.6 0.3 0.21" align="center" color="white" scale="2 2 2"></a-text>
+            </a-entity>
+            
+            <a-entity id="alphabet-content" visible="false">
+                <a-sphere position="-0.5 0.3 0" radius="0.25" color="#E91E63" class="clickable alphabet-btn"
+                    animation="property: position; to: -0.5 0.5 0; dir: alternate; loop: true; dur: 1000;"></a-sphere>
+                <a-text value="А" position="-0.5 0.3 0.26" align="center" color="white" scale="2 2 2"></a-text>
+                
+                <a-sphere position="0 0.3 0" radius="0.25" color="#9C27B0" class="clickable alphabet-btn"
+                    animation="property: position; to: 0 0.5 0; dir: alternate; loop: true; dur: 1200;"></a-sphere>
+                <a-text value="Б" position="0 0.3 0.26" align="center" color="white" scale="2 2 2"></a-text>
+                
+                <a-sphere position="0.5 0.3 0" radius="0.25" color="#673AB7" class="clickable alphabet-btn"
+                    animation="property: position; to: 0.5 0.5 0; dir: alternate; loop: true; dur: 1400;"></a-sphere>
+                <a-text value="В" position="0.5 0.3 0.26" align="center" color="white" scale="2 2 2"></a-text>
+            </a-entity>
+            
+            <a-entity id="quiz-content" visible="false">
+                <a-cylinder position="-0.4 0.2 0" radius="0.2" height="0.4" color="#FF9800" class="clickable quiz-btn"
+                    animation="property: rotation; to: 0 360 0; loop: true; dur: 2000;"></a-cylinder>
+                <a-text value="Да" position="-0.4 0.2 0.21" align="center" color="white" scale="1.5 1.5 1.5"></a-text>
+                
+                <a-cylinder position="0.4 0.2 0" radius="0.2" height="0.4" color="#795548" class="clickable quiz-btn"
+                    animation="property: rotation; to: 0 -360 0; loop: true; dur: 2000;"></a-cylinder>
+                <a-text value="Не" position="0.4 0.2 0.21" align="center" color="white" scale="1.5 1.5 1.5"></a-text>
+            </a-entity>
+            
+            <a-ring position="0 0.01 0" rotation="-90 0 0" radius-inner="0.4" radius-outer="0.8" color="#333" opacity="0.5"></a-ring>
+        </a-marker>
+        
+        <a-entity camera></a-entity>
+    </a-scene>
+    
+    <script>
+        let score = 0;
+        let currentMode = 'math';
+        let currentQuestion = null;
+        
+        const mathQuestions = [
+            { question: '2 + 3 = ?', answers: [5, 4, 6], correct: 0 },
+            { question: '5 - 2 = ?', answers: [3, 4, 2], correct: 0 },
+            { question: '4 + 4 = ?', answers: [8, 7, 9], correct: 0 },
+            { question: '7 - 3 = ?', answers: [4, 5, 3], correct: 0 },
+            { question: '6 + 2 = ?', answers: [8, 7, 9], correct: 0 },
+            { question: '9 - 5 = ?', answers: [4, 3, 5], correct: 0 },
+            { question: '3 + 5 = ?', answers: [8, 7, 9], correct: 0 },
+            { question: '10 - 4 = ?', answers: [6, 5, 7], correct: 0 },
+        ];
+        
+        const alphabetQuestions = [
+            { question: 'Коя буква е първа?', letters: ['А', 'Б', 'В'], correct: 0 },
+            { question: 'Коя буква идва след А?', letters: ['Б', 'В', 'Г'], correct: 0 },
+            { question: 'Коя буква идва след Б?', letters: ['В', 'Г', 'Д'], correct: 0 },
+        ];
+        
+        const quizQuestions = [
+            { question: 'Слънцето изгрява на изток?', correct: 'yes' },
+            { question: 'Рибите живеят във въздуха?', correct: 'no' },
+            { question: 'Водата е мокра?', correct: 'yes' },
+            { question: 'Котките лаят?', correct: 'no' },
+        ];
+        
+        function startApp() {
+            document.getElementById('splash').classList.add('hidden');
+            document.getElementById('arScene').classList.remove('hidden');
+            document.getElementById('info').classList.remove('hidden');
+            document.getElementById('question-display').classList.remove('hidden');
+            document.getElementById('mode-selector').classList.remove('hidden');
+            loadNewQuestion();
+            setupClickListeners();
+        }
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('math-content').setAttribute('visible', mode === 'math');
+            document.getElementById('alphabet-content').setAttribute('visible', mode === 'alphabet');
+            document.getElementById('quiz-content').setAttribute('visible', mode === 'quiz');
+            loadNewQuestion();
+        }
+        
+        function loadNewQuestion() {
+            const display = document.getElementById('question-display');
+            if (currentMode === 'math') {
+                currentQuestion = mathQuestions[Math.floor(Math.random() * mathQuestions.length)];
+                display.textContent = currentQuestion.question;
+                updateMathAnswers();
+            } else if (currentMode === 'alphabet') {
+                currentQuestion = alphabetQuestions[Math.floor(Math.random() * alphabetQuestions.length)];
+                display.textContent = currentQuestion.question;
+            } else if (currentMode === 'quiz') {
+                currentQuestion = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
+                display.textContent = currentQuestion.question;
+            }
+        }
+        
+        function updateMathAnswers() {
+            const answers = currentQuestion.answers;
+            const textElements = document.querySelectorAll('#math-content a-text');
+            textElements.forEach((el, i) => {
+                if (answers[i] !== undefined) el.setAttribute('value', answers[i].toString());
+            });
+        }
+        
+        function setupClickListeners() {
+            const scene = document.getElementById('arScene');
+            scene.addEventListener('loaded', function() {
+                document.querySelectorAll('#math-content a-box').forEach((box, index) => {
+                    box.addEventListener('click', () => { if (currentMode === 'math') checkMathAnswer(index); });
+                });
+                document.querySelectorAll('#alphabet-content a-sphere').forEach((sphere, index) => {
+                    sphere.addEventListener('click', () => { if (currentMode === 'alphabet') checkAlphabetAnswer(index); });
+                });
+                document.querySelectorAll('#quiz-content a-cylinder').forEach((cylinder, index) => {
+                    cylinder.addEventListener('click', () => { if (currentMode === 'quiz') checkQuizAnswer(index === 0 ? 'yes' : 'no'); });
+                });
+            });
+        }
+        
+        function checkMathAnswer(index) { index === currentQuestion.correct ? correctAnswer() : wrongAnswer(); }
+        function checkAlphabetAnswer(index) { index === currentQuestion.correct ? correctAnswer() : wrongAnswer(); }
+        function checkQuizAnswer(answer) { answer === currentQuestion.correct ? correctAnswer() : wrongAnswer(); }
+        
+        function correctAnswer() {
+            score++;
+            document.getElementById('score').textContent = score;
+            showFeedback('🎉 Браво!');
+            setTimeout(loadNewQuestion, 1500);
+        }
+        
+        function wrongAnswer() { showFeedback('❌ Опитай пак!'); }
+        
+        function showFeedback(text) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = text;
+            feedback.style.display = 'block';
+            setTimeout(() => { feedback.style.display = 'none'; }, 1000);
+        }
+    </script>
+</body>
+</html>

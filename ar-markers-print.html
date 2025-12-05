@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Маркери за Печат</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .marker-section {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .marker-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .marker-section img {
+            max-width: 300px;
+            border: 5px solid #333;
+            margin: 15px 0;
+        }
+        .marker-section p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .print-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 15px 30px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+        .print-btn:hover {
+            background: #45a049;
+        }
+        .instructions {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        @media print {
+            .no-print { display: none; }
+            body { background: white; }
+            .marker-section { 
+                box-shadow: none; 
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="no-print">🖨️ AR Маркери за Печат</h1>
+    
+    <div class="instructions no-print">
+        <h3>📋 Инструкции:</h3>
+        <ol>
+            <li>Натиснете бутона "Принтирай" по-долу</li>
+            <li>Изрежете маркерите по контура</li>
+            <li>Залепете ги на играчката или аксесоарите</li>
+            <li>Отворете AR приложението и насочете камерата</li>
+        </ol>
+    </div>
+    
+    <button class="print-btn no-print" onclick="window.print()">🖨️ Принтирай Маркерите</button>
+    
+    <div class="marker-section">
+        <h2>🎯 Основен Маркер (Hiro)</h2>
+        <img src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png" alt="Hiro Marker">
+        <p>Основен маркер за всички режими<br>Препоръчителен размер: 8x8 см</p>
+    </div>
+    
+    <div class="marker-section">
+        <h2>🔢 Математика Маркер (Kanji)</h2>
+        <img src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/kanji.png" alt="Kanji Marker">
+        <p>За математически задачи<br>Препоръчителен размер: 6x6 см</p>
+    </div>
+    
+    <div class="marker-section no-print">
+        <h2>💡 Съвети за печат</h2>
+        <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
+            <li>Използвайте бяла хартия за най-добро разпознаване</li>
+            <li>Печатайте в черно-бяло за по-добър контраст</li>
+            <li>Избягвайте гланцирана хартия (отразява светлина)</li>
+            <li>Маркерът трябва да е плосък, без гънки</li>
+            <li>Добро осветление помага за по-бързо разпознаване</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -11,22 +11,29 @@
         body {
             margin: 0;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         /* Splash Screen */
         #splash {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 9999; color: white; text-align: center; padding: 20px;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+            padding: 20px;
         }
         #splash h1 {
-            font-size: 2em;
+            font-size: 2.2em;
             margin-bottom: 15px;
             font-weight: 700;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         #splash p {
             font-size: 1.1em;
@@ -36,7 +43,7 @@
             line-height: 1.5;
         }
         #startBtn {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            background: #4CAF50;
             color: white;
             border: none;
             padding: 18px 50px;
@@ -44,62 +51,96 @@
             font-weight: 600;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
         }
         #startBtn:active {
             transform: scale(0.95);
         }
 
         /* Score Panel */
-        #info {
+        #score-panel {
             position: fixed;
-            top: 15px;
-            left: 15px;
-            background: linear-gradient(135deg, rgba(30,30,40,0.95) 0%, rgba(40,40,55,0.95) 100%);
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.85);
             color: white;
-            padding: 12px 18px;
-            border-radius: 16px;
+            padding: 15px 20px;
+            border-radius: 20px;
             z-index: 1000;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        #info h3 {
-            margin: 0 0 5px 0;
-            font-size: 0.85em;
-            font-weight: 500;
-            opacity: 0.8;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 10px;
         }
-        #score {
-            font-size: 2.2em;
+        #score-panel .star {
+            font-size: 1.5em;
+        }
+        #score-panel .score-value {
+            font-size: 1.8em;
             font-weight: 700;
             color: #4ade80;
-            text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
         }
 
-        /* Question Display */
-        #question-display {
+        /* Question Panel */
+        #question-panel {
             position: fixed;
-            top: 15px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: white;
-            padding: 15px 30px;
-            border-radius: 20px;
-            font-size: 1.4em;
+            padding: 15px 35px;
+            border-radius: 25px;
+            font-size: 1.5em;
             font-weight: 700;
-            color: #1e1e2e;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+            color: #1a1a2e;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.2);
             z-index: 1000;
             text-align: center;
-            min-width: 200px;
-            border: 2px solid #e5e7eb;
+        }
+
+        /* Answer Buttons Container */
+        #answers-container {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .answer-btn {
+            width: 90px;
+            height: 90px;
+            border-radius: 20px;
+            border: none;
+            font-size: 2em;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .answer-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .answer-btn.green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+        .answer-btn.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .answer-btn.blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .answer-btn.purple { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); }
+        .answer-btn.pink { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+        .answer-btn.orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+
+        /* Wide buttons for Yes/No */
+        .answer-btn.wide {
+            width: 130px;
+            height: 70px;
+            font-size: 1.3em;
         }
 
         /* Mode Selector */
@@ -114,12 +155,12 @@
             background: rgba(255,255,255,0.95);
             padding: 8px;
             border-radius: 20px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.2);
         }
         .mode-btn {
             background: transparent;
             border: none;
-            padding: 12px 18px;
+            padding: 12px 16px;
             border-radius: 14px;
             cursor: pointer;
             font-size: 0.85em;
@@ -131,444 +172,299 @@
             align-items: center;
             gap: 4px;
         }
-        .mode-btn span.icon {
+        .mode-btn .icon {
             font-size: 1.4em;
         }
         .mode-btn:active {
             transform: scale(0.95);
         }
         .mode-btn.active {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
         }
 
-        /* Feedback Popup */
+        /* Feedback Overlay */
         #feedback {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        #feedback.show {
+            display: flex;
+        }
+        #feedback .content {
+            background: white;
+            padding: 40px 60px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            animation: popIn 0.3s ease-out;
+        }
+        #feedback.correct .content {
+            border: 5px solid #22c55e;
+        }
+        #feedback.wrong .content {
+            border: 5px solid #ef4444;
+        }
+        #feedback .emoji {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+        #feedback .text {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Marker hint */
+        #marker-hint {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 2000;
-            display: none;
-            background: white;
-            padding: 30px 50px;
-            border-radius: 25px;
-            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-        #feedback.correct {
-            border: 4px solid #22c55e;
-        }
-        #feedback.wrong {
-            border: 4px solid #ef4444;
-        }
-        #feedback .emoji {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-        #feedback .text {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: #1e1e2e;
-        }
-        @keyframes popIn {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
-        #feedback.show {
-            display: block;
-            animation: popIn 0.3s ease-out;
-        }
-
-        /* Tap instruction */
-        #tap-hint {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             color: white;
-            padding: 10px 20px;
+            padding: 20px 30px;
             border-radius: 20px;
-            font-size: 0.9em;
-            z-index: 1000;
-            animation: pulse 2s infinite;
+            text-align: center;
+            z-index: 500;
+            font-size: 1.1em;
+            line-height: 1.5;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
+        #marker-hint.hidden {
+            display: none;
         }
 
         .hidden { display: none !important; }
-
-        /* A-Frame cursor for mobile */
-        .a-canvas {
-            touch-action: none;
-        }
     </style>
 </head>
 <body>
+    <!-- Splash Screen -->
     <div id="splash">
         <h1>🧸 AR Образователна Играчка</h1>
-        <p>Насочете камерата към маркера и докоснете картите с отговори!</p>
-        <button id="startBtn" onclick="startApp()">Започни</button>
+        <p>Насочете камерата към маркера и отговаряйте на въпросите!</p>
+        <button id="startBtn" onclick="startApp()">🚀 Започни!</button>
     </div>
 
-    <div id="info" class="hidden">
-        <h3>⭐ Точки</h3>
-        <div id="score">0</div>
+    <!-- Game UI -->
+    <div id="score-panel" class="hidden">
+        <span class="star">⭐</span>
+        <span class="score-value" id="score">0</span>
     </div>
 
-    <div id="question-display" class="hidden">2 + 3 = ?</div>
+    <div id="question-panel" class="hidden">
+        <span id="question-text">2 + 3 = ?</span>
+    </div>
 
-    <div id="tap-hint" class="hidden">👆 Докоснете карта с отговор</div>
+    <div id="marker-hint" class="hidden">
+        📷 Насочете камерата<br>към маркера
+    </div>
+
+    <div id="answers-container" class="hidden">
+        <!-- Buttons will be generated by JS -->
+    </div>
 
     <div id="mode-selector" class="hidden">
-        <button class="mode-btn active" onclick="setMode('math')">
+        <button class="mode-btn active" data-mode="math">
             <span class="icon">🔢</span>
             <span>Математика</span>
         </button>
-        <button class="mode-btn" onclick="setMode('alphabet')">
+        <button class="mode-btn" data-mode="alphabet">
             <span class="icon">🔤</span>
             <span>Азбука</span>
         </button>
-        <button class="mode-btn" onclick="setMode('quiz')">
+        <button class="mode-btn" data-mode="quiz">
             <span class="icon">❓</span>
             <span>Викторина</span>
         </button>
     </div>
 
     <div id="feedback">
-        <div class="emoji"></div>
-        <div class="text"></div>
+        <div class="content">
+            <div class="emoji"></div>
+            <div class="text"></div>
+        </div>
     </div>
 
+    <!-- AR Scene -->
     <a-scene id="arScene" class="hidden" embedded
         arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
         vr-mode-ui="enabled: false"
-        renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
-        cursor="rayOrigin: mouse; fuse: false;"
-        raycaster="objects: .clickable">
-
-        <a-assets>
-            <a-mixin id="card-animation"
-                animation__hover="property: position; to: 0 0.4 0; startEvents: mouseenter; dur: 200"
-                animation__unhover="property: position; to: 0 0.3 0; startEvents: mouseleave; dur: 200">
-            </a-mixin>
-        </a-assets>
+        renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;">
 
         <a-marker preset="hiro" id="mainMarker">
-            <!-- Math Mode - 3D Cards -->
-            <a-entity id="math-content">
-                <!-- Card 1 -->
-                <a-entity position="-0.5 0 0" class="card-wrapper">
-                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
-                        class="clickable answer-btn math-card" data-index="0"
-                        material="color: #ffffff; shader: flat;"
-                        geometry="primitive: box">
-                    </a-box>
-                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
-                        material="color: #22c55e; shader: flat;"></a-plane>
-                    <a-text id="math-text-0" value="5" position="0 0.15 0.03" align="center"
-                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8" font-weight="bold"></a-text>
+            <!-- Fun 3D element that appears on marker -->
+            <a-entity id="ar-content">
+                <!-- Floating star -->
+                <a-entity id="floating-star" position="0 0.5 0">
+                    <a-dodecahedron color="#FFD700" radius="0.15"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear;"
+                        animation__float="property: position; to: 0 0.7 0; dir: alternate; loop: true; dur: 1500; easing: easeInOutSine;">
+                    </a-dodecahedron>
                 </a-entity>
 
-                <!-- Card 2 -->
-                <a-entity position="0 0 0" class="card-wrapper">
-                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
-                        class="clickable answer-btn math-card" data-index="1"
-                        material="color: #ffffff; shader: flat;">
-                    </a-box>
-                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
-                        material="color: #ef4444; shader: flat;"></a-plane>
-                    <a-text id="math-text-1" value="4" position="0 0.15 0.03" align="center"
-                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
+                <!-- Orbiting spheres -->
+                <a-entity id="orbit" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear;">
+                    <a-sphere position="0.4 0.3 0" radius="0.08" color="#22c55e"></a-sphere>
+                    <a-sphere position="-0.4 0.3 0" radius="0.08" color="#ef4444"></a-sphere>
+                    <a-sphere position="0 0.3 0.4" radius="0.08" color="#3b82f6"></a-sphere>
+                    <a-sphere position="0 0.3 -0.4" radius="0.08" color="#a855f7"></a-sphere>
                 </a-entity>
 
-                <!-- Card 3 -->
-                <a-entity position="0.5 0 0" class="card-wrapper">
-                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
-                        class="clickable answer-btn math-card" data-index="2"
-                        material="color: #ffffff; shader: flat;">
-                    </a-box>
-                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
-                        material="color: #3b82f6; shader: flat;"></a-plane>
-                    <a-text id="math-text-2" value="6" position="0 0.15 0.03" align="center"
-                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
-                </a-entity>
+                <!-- Base ring -->
+                <a-ring position="0 0.01 0" rotation="-90 0 0" radius-inner="0.3" radius-outer="0.5"
+                    color="#667eea" opacity="0.7"></a-ring>
             </a-entity>
-
-            <!-- Alphabet Mode - 3D Cards -->
-            <a-entity id="alphabet-content" visible="false">
-                <!-- Card A -->
-                <a-entity position="-0.5 0 0" class="card-wrapper">
-                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
-                        class="clickable answer-btn alphabet-card" data-index="0"
-                        material="color: #ffffff; shader: flat;">
-                    </a-box>
-                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
-                        material="color: #ec4899; shader: flat;"></a-plane>
-                    <a-text id="alpha-text-0" value="А" position="0 0.15 0.03" align="center"
-                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
-                </a-entity>
-
-                <!-- Card B -->
-                <a-entity position="0 0 0" class="card-wrapper">
-                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
-                        class="clickable answer-btn alphabet-card" data-index="1"
-                        material="color: #ffffff; shader: flat;">
-                    </a-box>
-                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
-                        material="color: #a855f7; shader: flat;"></a-plane>
-                    <a-text id="alpha-text-1" value="Б" position="0 0.15 0.03" align="center"
-                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
-                </a-entity>
-
-                <!-- Card C -->
-                <a-entity position="0.5 0 0" class="card-wrapper">
-                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
-                        class="clickable answer-btn alphabet-card" data-index="2"
-                        material="color: #ffffff; shader: flat;">
-                    </a-box>
-                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
-                        material="color: #6366f1; shader: flat;"></a-plane>
-                    <a-text id="alpha-text-2" value="В" position="0 0.15 0.03" align="center"
-                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
-                </a-entity>
-            </a-entity>
-
-            <!-- Quiz Mode - Yes/No Cards -->
-            <a-entity id="quiz-content" visible="false">
-                <!-- Yes Card -->
-                <a-entity position="-0.35 0 0" class="card-wrapper">
-                    <a-box position="0 0.15 0" width="0.45" height="0.35" depth="0.04"
-                        class="clickable answer-btn quiz-card" data-answer="yes"
-                        material="color: #ffffff; shader: flat;">
-                    </a-box>
-                    <a-plane position="0 0.15 0.025" width="0.43" height="0.33"
-                        material="color: #22c55e; shader: flat;"></a-plane>
-                    <a-text value="✓ Да" position="0 0.15 0.03" align="center"
-                        color="#ffffff" font="mozillavr" scale="0.5 0.5 0.5"></a-text>
-                </a-entity>
-
-                <!-- No Card -->
-                <a-entity position="0.35 0 0" class="card-wrapper">
-                    <a-box position="0 0.15 0" width="0.45" height="0.35" depth="0.04"
-                        class="clickable answer-btn quiz-card" data-answer="no"
-                        material="color: #ffffff; shader: flat;">
-                    </a-box>
-                    <a-plane position="0 0.15 0.025" width="0.43" height="0.33"
-                        material="color: #ef4444; shader: flat;"></a-plane>
-                    <a-text value="✗ Не" position="0 0.15 0.03" align="center"
-                        color="#ffffff" font="mozillavr" scale="0.5 0.5 0.5"></a-text>
-                </a-entity>
-            </a-entity>
-
-            <!-- Ground indicator -->
-            <a-ring position="0 0.005 0" rotation="-90 0 0" radius-inner="0.5" radius-outer="0.55"
-                material="color: #6366f1; opacity: 0.3; shader: flat;"></a-ring>
         </a-marker>
 
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
+        // Game state
         let score = 0;
         let currentMode = 'math';
         let currentQuestion = null;
         let isProcessing = false;
+        let markerVisible = false;
 
-        const mathQuestions = [
-            { question: '2 + 3 = ?', answers: [5, 4, 6], correct: 0 },
-            { question: '5 - 2 = ?', answers: [3, 4, 2], correct: 0 },
-            { question: '4 + 4 = ?', answers: [8, 7, 9], correct: 0 },
-            { question: '7 - 3 = ?', answers: [4, 5, 3], correct: 0 },
-            { question: '6 + 2 = ?', answers: [8, 7, 9], correct: 0 },
-            { question: '9 - 5 = ?', answers: [4, 3, 5], correct: 0 },
-            { question: '3 + 5 = ?', answers: [8, 7, 9], correct: 0 },
-            { question: '10 - 4 = ?', answers: [6, 5, 7], correct: 0 },
-        ];
+        // Questions database
+        const questions = {
+            math: [
+                { q: '2 + 3 = ?', answers: [5, 4, 6], correct: 0 },
+                { q: '5 - 2 = ?', answers: [3, 4, 2], correct: 0 },
+                { q: '4 + 4 = ?', answers: [8, 7, 9], correct: 0 },
+                { q: '7 - 3 = ?', answers: [4, 5, 3], correct: 0 },
+                { q: '6 + 2 = ?', answers: [8, 7, 9], correct: 0 },
+                { q: '9 - 5 = ?', answers: [4, 3, 5], correct: 0 },
+                { q: '3 + 5 = ?', answers: [8, 7, 9], correct: 0 },
+                { q: '10 - 4 = ?', answers: [6, 5, 7], correct: 0 },
+                { q: '1 + 1 = ?', answers: [2, 3, 1], correct: 0 },
+                { q: '8 - 6 = ?', answers: [2, 3, 4], correct: 0 },
+            ],
+            alphabet: [
+                { q: 'Коя буква е първа?', answers: ['А', 'Б', 'В'], correct: 0 },
+                { q: 'Коя идва след А?', answers: ['Б', 'В', 'Г'], correct: 0 },
+                { q: 'Коя идва след Б?', answers: ['В', 'Г', 'Д'], correct: 0 },
+                { q: 'Коя идва след В?', answers: ['Г', 'Д', 'Е'], correct: 0 },
+                { q: 'Коя идва след Г?', answers: ['Д', 'Е', 'Ж'], correct: 0 },
+            ],
+            quiz: [
+                { q: 'Слънцето топло ли е?', correct: 0 },
+                { q: 'Рибите летят ли?', correct: 1 },
+                { q: 'Водата мокра ли е?', correct: 0 },
+                { q: 'Котките лаят ли?', correct: 1 },
+                { q: 'Небето синьо ли е?', correct: 0 },
+                { q: 'Слоновете малки ли са?', correct: 1 },
+            ]
+        };
 
-        const alphabetQuestions = [
-            { question: 'Коя буква е първа?', letters: ['А', 'Б', 'В'], correct: 0 },
-            { question: 'Коя буква идва след А?', letters: ['Б', 'В', 'Г'], correct: 0 },
-            { question: 'Коя буква идва след Б?', letters: ['В', 'Г', 'Д'], correct: 0 },
-        ];
-
-        const quizQuestions = [
-            { question: 'Слънцето изгрява на изток?', correct: 'yes' },
-            { question: 'Рибите живеят във въздуха?', correct: 'no' },
-            { question: 'Водата е мокра?', correct: 'yes' },
-            { question: 'Котките лаят?', correct: 'no' },
-        ];
+        const btnColors = ['green', 'red', 'blue', 'purple', 'pink', 'orange'];
 
         function startApp() {
             document.getElementById('splash').classList.add('hidden');
             document.getElementById('arScene').classList.remove('hidden');
-            document.getElementById('info').classList.remove('hidden');
-            document.getElementById('question-display').classList.remove('hidden');
+            document.getElementById('score-panel').classList.remove('hidden');
+            document.getElementById('question-panel').classList.remove('hidden');
+            document.getElementById('answers-container').classList.remove('hidden');
             document.getElementById('mode-selector').classList.remove('hidden');
-            document.getElementById('tap-hint').classList.remove('hidden');
+            document.getElementById('marker-hint').classList.remove('hidden');
 
-            loadNewQuestion();
-            setupClickListeners();
-
-            // Hide tap hint after 5 seconds
-            setTimeout(() => {
-                document.getElementById('tap-hint').classList.add('hidden');
-            }, 5000);
+            setupModeButtons();
+            setupMarkerEvents();
+            loadQuestion();
         }
 
-        function setMode(mode) {
-            currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.closest('.mode-btn').classList.add('active');
-
-            document.getElementById('math-content').setAttribute('visible', mode === 'math');
-            document.getElementById('alphabet-content').setAttribute('visible', mode === 'alphabet');
-            document.getElementById('quiz-content').setAttribute('visible', mode === 'quiz');
-
-            loadNewQuestion();
-        }
-
-        function loadNewQuestion() {
-            const display = document.getElementById('question-display');
-
-            if (currentMode === 'math') {
-                currentQuestion = mathQuestions[Math.floor(Math.random() * mathQuestions.length)];
-                display.textContent = currentQuestion.question;
-                updateMathAnswers();
-            } else if (currentMode === 'alphabet') {
-                currentQuestion = alphabetQuestions[Math.floor(Math.random() * alphabetQuestions.length)];
-                display.textContent = currentQuestion.question;
-                updateAlphabetAnswers();
-            } else if (currentMode === 'quiz') {
-                currentQuestion = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
-                display.textContent = currentQuestion.question;
-            }
-        }
-
-        function updateMathAnswers() {
-            const answers = currentQuestion.answers;
-            for (let i = 0; i < 3; i++) {
-                const textEl = document.getElementById(`math-text-${i}`);
-                if (textEl && answers[i] !== undefined) {
-                    textEl.setAttribute('value', answers[i].toString());
-                }
-            }
-        }
-
-        function updateAlphabetAnswers() {
-            const letters = currentQuestion.letters;
-            for (let i = 0; i < 3; i++) {
-                const textEl = document.getElementById(`alpha-text-${i}`);
-                if (textEl && letters[i] !== undefined) {
-                    textEl.setAttribute('value', letters[i]);
-                }
-            }
-        }
-
-        function setupClickListeners() {
-            // Wait for scene to be fully loaded
-            const scene = document.getElementById('arScene');
-
-            scene.addEventListener('loaded', function() {
-                console.log('Scene loaded, setting up listeners...');
-
-                // Math cards
-                document.querySelectorAll('.math-card').forEach((card) => {
-                    const index = parseInt(card.getAttribute('data-index'));
-                    card.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (currentMode === 'math' && !isProcessing) {
-                            checkMathAnswer(index);
-                        }
-                    });
-                });
-
-                // Alphabet cards
-                document.querySelectorAll('.alphabet-card').forEach((card) => {
-                    const index = parseInt(card.getAttribute('data-index'));
-                    card.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (currentMode === 'alphabet' && !isProcessing) {
-                            checkAlphabetAnswer(index);
-                        }
-                    });
-                });
-
-                // Quiz cards
-                document.querySelectorAll('.quiz-card').forEach((card) => {
-                    const answer = card.getAttribute('data-answer');
-                    card.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (currentMode === 'quiz' && !isProcessing) {
-                            checkQuizAnswer(answer);
-                        }
-                    });
+        function setupModeButtons() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentMode = btn.dataset.mode;
+                    loadQuestion();
                 });
             });
-
-            // Fallback: also add touch support directly to canvas
-            setTimeout(() => {
-                const canvas = document.querySelector('.a-canvas');
-                if (canvas) {
-                    canvas.addEventListener('touchstart', handleTouch, { passive: false });
-                }
-            }, 1000);
         }
 
-        function handleTouch(e) {
-            // This is a backup touch handler
-            // A-Frame's cursor should handle most cases
+        function setupMarkerEvents() {
+            const marker = document.getElementById('mainMarker');
+
+            marker.addEventListener('markerFound', () => {
+                markerVisible = true;
+                document.getElementById('marker-hint').classList.add('hidden');
+            });
+
+            marker.addEventListener('markerLost', () => {
+                markerVisible = false;
+                document.getElementById('marker-hint').classList.remove('hidden');
+            });
         }
 
-        function checkMathAnswer(index) {
-            if (index === currentQuestion.correct) {
-                correctAnswer();
+        function loadQuestion() {
+            const questionList = questions[currentMode];
+            currentQuestion = questionList[Math.floor(Math.random() * questionList.length)];
+
+            document.getElementById('question-text').textContent = currentQuestion.q;
+            renderAnswerButtons();
+        }
+
+        function renderAnswerButtons() {
+            const container = document.getElementById('answers-container');
+            container.innerHTML = '';
+
+            if (currentMode === 'quiz') {
+                // Yes/No buttons
+                const yesBtn = createButton('✓ Да', 'green', 0, true);
+                const noBtn = createButton('✗ Не', 'red', 1, true);
+                container.appendChild(yesBtn);
+                container.appendChild(noBtn);
             } else {
-                wrongAnswer();
+                // Multiple choice
+                currentQuestion.answers.forEach((answer, index) => {
+                    const btn = createButton(answer, btnColors[index], index, false);
+                    container.appendChild(btn);
+                });
             }
         }
 
-        function checkAlphabetAnswer(index) {
-            if (index === currentQuestion.correct) {
-                correctAnswer();
-            } else {
-                wrongAnswer();
-            }
+        function createButton(text, color, index, wide) {
+            const btn = document.createElement('button');
+            btn.className = `answer-btn ${color}${wide ? ' wide' : ''}`;
+            btn.textContent = text;
+            btn.addEventListener('click', () => handleAnswer(index));
+            return btn;
         }
 
-        function checkQuizAnswer(answer) {
-            if (answer === currentQuestion.correct) {
-                correctAnswer();
-            } else {
-                wrongAnswer();
-            }
-        }
-
-        function correctAnswer() {
+        function handleAnswer(index) {
+            if (isProcessing) return;
             isProcessing = true;
-            score++;
-            document.getElementById('score').textContent = score;
-            showFeedback(true);
-            setTimeout(() => {
-                loadNewQuestion();
-                isProcessing = false;
-            }, 1500);
-        }
 
-        function wrongAnswer() {
-            isProcessing = true;
-            showFeedback(false);
-            setTimeout(() => {
-                isProcessing = false;
-            }, 1000);
+            const isCorrect = index === currentQuestion.correct;
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('score').textContent = score;
+                showFeedback(true);
+                setTimeout(() => {
+                    loadQuestion();
+                    isProcessing = false;
+                }, 1500);
+            } else {
+                showFeedback(false);
+                setTimeout(() => {
+                    isProcessing = false;
+                }, 1000);
+            }
         }
 
         function showFeedback(isCorrect) {
@@ -576,24 +472,12 @@
             const emoji = feedback.querySelector('.emoji');
             const text = feedback.querySelector('.text');
 
-            feedback.classList.remove('correct', 'wrong', 'show');
-
-            if (isCorrect) {
-                emoji.textContent = '🎉';
-                text.textContent = 'Браво!';
-                feedback.classList.add('correct');
-            } else {
-                emoji.textContent = '😅';
-                text.textContent = 'Опитай пак!';
-                feedback.classList.add('wrong');
-            }
-
-            // Force reflow
-            void feedback.offsetWidth;
-            feedback.classList.add('show');
+            feedback.className = isCorrect ? 'show correct' : 'show wrong';
+            emoji.textContent = isCorrect ? '🎉' : '😅';
+            text.textContent = isCorrect ? 'Браво!' : 'Опитай пак!';
 
             setTimeout(() => {
-                feedback.classList.remove('show');
+                feedback.className = '';
             }, 1200);
         }
     </script>

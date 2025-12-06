@@ -2,142 +2,384 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AR Образователна Играчка</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Splash Screen */
         #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 9999; color: white; text-align: center;
+            z-index: 9999; color: white; text-align: center; padding: 20px;
         }
-        #splash h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        #splash p { font-size: 1.2em; margin-bottom: 30px; opacity: 0.9; }
+        #splash h1 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        #splash p {
+            font-size: 1.1em;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            max-width: 300px;
+            line-height: 1.5;
+        }
         #startBtn {
-            background: #4CAF50; color: white; border: none; padding: 20px 60px;
-            font-size: 1.5em; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s, box-shadow 0.2s;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.3em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        #startBtn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
-        
+        #startBtn:active {
+            transform: scale(0.95);
+        }
+
+        /* Score Panel */
         #info {
-            position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8);
-            color: white; padding: 15px 20px; border-radius: 15px; z-index: 1000;
-            max-width: 200px; backdrop-filter: blur(10px);
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, rgba(30,30,40,0.95) 0%, rgba(40,40,55,0.95) 100%);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 16px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
-        #info h3 { margin: 0 0 10px 0; font-size: 1.1em; }
-        #score { font-size: 2em; font-weight: bold; color: #4CAF50; }
-        
+        #info h3 {
+            margin: 0 0 5px 0;
+            font-size: 0.85em;
+            font-weight: 500;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        #score {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #4ade80;
+            text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+        }
+
+        /* Question Display */
+        #question-display {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 30px;
+            border-radius: 20px;
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #1e1e2e;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            text-align: center;
+            min-width: 200px;
+            border: 2px solid #e5e7eb;
+        }
+
+        /* Mode Selector */
         #mode-selector {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; display: flex; gap: 10px;
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            background: rgba(255,255,255,0.95);
+            padding: 8px;
+            border-radius: 20px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.15);
         }
         .mode-btn {
-            background: rgba(255,255,255,0.9); border: 3px solid #667eea;
-            padding: 12px 25px; border-radius: 25px; cursor: pointer;
-            font-size: 1em; font-weight: bold; color: #333; transition: all 0.2s;
+            background: transparent;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
         }
-        .mode-btn:hover, .mode-btn.active { background: #667eea; color: white; }
-        
-        #question-display {
-            position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.95); padding: 20px 40px; border-radius: 20px;
-            font-size: 1.8em; font-weight: bold; color: #333;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000; text-align: center; min-width: 200px;
+        .mode-btn span.icon {
+            font-size: 1.4em;
         }
-        
+        .mode-btn:active {
+            transform: scale(0.95);
+        }
+        .mode-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Feedback Popup */
         #feedback {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 4em; z-index: 2000; display: none; animation: popIn 0.5s ease-out;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            display: none;
+            background: white;
+            padding: 30px 50px;
+            border-radius: 25px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        #feedback.correct {
+            border: 4px solid #22c55e;
+        }
+        #feedback.wrong {
+            border: 4px solid #ef4444;
+        }
+        #feedback .emoji {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        #feedback .text {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1e1e2e;
         }
         @keyframes popIn {
-            0% { transform: translate(-50%, -50%) scale(0); }
-            50% { transform: translate(-50%, -50%) scale(1.2); }
-            100% { transform: translate(-50%, -50%) scale(1); }
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
+        #feedback.show {
+            display: block;
+            animation: popIn 0.3s ease-out;
+        }
+
+        /* Tap instruction */
+        #tap-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
         .hidden { display: none !important; }
+
+        /* A-Frame cursor for mobile */
+        .a-canvas {
+            touch-action: none;
+        }
     </style>
 </head>
 <body>
     <div id="splash">
         <h1>🧸 AR Образователна Играчка</h1>
-        <p>Насочете камерата към маркера и започнете да учите!</p>
-        <button id="startBtn" onclick="startApp()">🚀 Започни!</button>
+        <p>Насочете камерата към маркера и докоснете картите с отговори!</p>
+        <button id="startBtn" onclick="startApp()">Започни</button>
     </div>
-    
+
     <div id="info" class="hidden">
         <h3>⭐ Точки</h3>
         <div id="score">0</div>
     </div>
-    
+
     <div id="question-display" class="hidden">2 + 3 = ?</div>
-    
+
+    <div id="tap-hint" class="hidden">👆 Докоснете карта с отговор</div>
+
     <div id="mode-selector" class="hidden">
-        <button class="mode-btn active" onclick="setMode('math')">🔢 Математика</button>
-        <button class="mode-btn" onclick="setMode('alphabet')">🔤 Азбука</button>
-        <button class="mode-btn" onclick="setMode('quiz')">❓ Викторина</button>
+        <button class="mode-btn active" onclick="setMode('math')">
+            <span class="icon">🔢</span>
+            <span>Математика</span>
+        </button>
+        <button class="mode-btn" onclick="setMode('alphabet')">
+            <span class="icon">🔤</span>
+            <span>Азбука</span>
+        </button>
+        <button class="mode-btn" onclick="setMode('quiz')">
+            <span class="icon">❓</span>
+            <span>Викторина</span>
+        </button>
     </div>
-    
-    <div id="feedback"></div>
-    
+
+    <div id="feedback">
+        <div class="emoji"></div>
+        <div class="text"></div>
+    </div>
+
     <a-scene id="arScene" class="hidden" embedded
         arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-        vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; antialias: true;">
-        
+        vr-mode-ui="enabled: false"
+        renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
+        cursor="rayOrigin: mouse; fuse: false;"
+        raycaster="objects: .clickable">
+
+        <a-assets>
+            <a-mixin id="card-animation"
+                animation__hover="property: position; to: 0 0.4 0; startEvents: mouseenter; dur: 200"
+                animation__unhover="property: position; to: 0 0.3 0; startEvents: mouseleave; dur: 200">
+            </a-mixin>
+        </a-assets>
+
         <a-marker preset="hiro" id="mainMarker">
+            <!-- Math Mode - 3D Cards -->
             <a-entity id="math-content">
-                <a-box position="-0.6 0.3 0" scale="0.4 0.4 0.4" color="#4CAF50" class="clickable answer-btn"
-                    animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear;"></a-box>
-                <a-text value="5" position="-0.6 0.3 0.21" align="center" color="white" scale="2 2 2"></a-text>
-                
-                <a-box position="0 0.3 0" scale="0.4 0.4 0.4" color="#f44336" class="clickable answer-btn"
-                    animation="property: rotation; to: 0 360 0; loop: true; dur: 3500; easing: linear;"></a-box>
-                <a-text value="4" position="0 0.3 0.21" align="center" color="white" scale="2 2 2"></a-text>
-                
-                <a-box position="0.6 0.3 0" scale="0.4 0.4 0.4" color="#2196F3" class="clickable answer-btn"
-                    animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear;"></a-box>
-                <a-text value="6" position="0.6 0.3 0.21" align="center" color="white" scale="2 2 2"></a-text>
+                <!-- Card 1 -->
+                <a-entity position="-0.5 0 0" class="card-wrapper">
+                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
+                        class="clickable answer-btn math-card" data-index="0"
+                        material="color: #ffffff; shader: flat;"
+                        geometry="primitive: box">
+                    </a-box>
+                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
+                        material="color: #22c55e; shader: flat;"></a-plane>
+                    <a-text id="math-text-0" value="5" position="0 0.15 0.03" align="center"
+                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8" font-weight="bold"></a-text>
+                </a-entity>
+
+                <!-- Card 2 -->
+                <a-entity position="0 0 0" class="card-wrapper">
+                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
+                        class="clickable answer-btn math-card" data-index="1"
+                        material="color: #ffffff; shader: flat;">
+                    </a-box>
+                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
+                        material="color: #ef4444; shader: flat;"></a-plane>
+                    <a-text id="math-text-1" value="4" position="0 0.15 0.03" align="center"
+                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
+                </a-entity>
+
+                <!-- Card 3 -->
+                <a-entity position="0.5 0 0" class="card-wrapper">
+                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
+                        class="clickable answer-btn math-card" data-index="2"
+                        material="color: #ffffff; shader: flat;">
+                    </a-box>
+                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
+                        material="color: #3b82f6; shader: flat;"></a-plane>
+                    <a-text id="math-text-2" value="6" position="0 0.15 0.03" align="center"
+                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
+                </a-entity>
             </a-entity>
-            
+
+            <!-- Alphabet Mode - 3D Cards -->
             <a-entity id="alphabet-content" visible="false">
-                <a-sphere position="-0.5 0.3 0" radius="0.25" color="#E91E63" class="clickable alphabet-btn"
-                    animation="property: position; to: -0.5 0.5 0; dir: alternate; loop: true; dur: 1000;"></a-sphere>
-                <a-text value="А" position="-0.5 0.3 0.26" align="center" color="white" scale="2 2 2"></a-text>
-                
-                <a-sphere position="0 0.3 0" radius="0.25" color="#9C27B0" class="clickable alphabet-btn"
-                    animation="property: position; to: 0 0.5 0; dir: alternate; loop: true; dur: 1200;"></a-sphere>
-                <a-text value="Б" position="0 0.3 0.26" align="center" color="white" scale="2 2 2"></a-text>
-                
-                <a-sphere position="0.5 0.3 0" radius="0.25" color="#673AB7" class="clickable alphabet-btn"
-                    animation="property: position; to: 0.5 0.5 0; dir: alternate; loop: true; dur: 1400;"></a-sphere>
-                <a-text value="В" position="0.5 0.3 0.26" align="center" color="white" scale="2 2 2"></a-text>
+                <!-- Card A -->
+                <a-entity position="-0.5 0 0" class="card-wrapper">
+                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
+                        class="clickable answer-btn alphabet-card" data-index="0"
+                        material="color: #ffffff; shader: flat;">
+                    </a-box>
+                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
+                        material="color: #ec4899; shader: flat;"></a-plane>
+                    <a-text id="alpha-text-0" value="А" position="0 0.15 0.03" align="center"
+                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
+                </a-entity>
+
+                <!-- Card B -->
+                <a-entity position="0 0 0" class="card-wrapper">
+                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
+                        class="clickable answer-btn alphabet-card" data-index="1"
+                        material="color: #ffffff; shader: flat;">
+                    </a-box>
+                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
+                        material="color: #a855f7; shader: flat;"></a-plane>
+                    <a-text id="alpha-text-1" value="Б" position="0 0.15 0.03" align="center"
+                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
+                </a-entity>
+
+                <!-- Card C -->
+                <a-entity position="0.5 0 0" class="card-wrapper">
+                    <a-box position="0 0.15 0" width="0.35" height="0.45" depth="0.04"
+                        class="clickable answer-btn alphabet-card" data-index="2"
+                        material="color: #ffffff; shader: flat;">
+                    </a-box>
+                    <a-plane position="0 0.15 0.025" width="0.33" height="0.43"
+                        material="color: #6366f1; shader: flat;"></a-plane>
+                    <a-text id="alpha-text-2" value="В" position="0 0.15 0.03" align="center"
+                        color="#ffffff" font="mozillavr" scale="0.8 0.8 0.8"></a-text>
+                </a-entity>
             </a-entity>
-            
+
+            <!-- Quiz Mode - Yes/No Cards -->
             <a-entity id="quiz-content" visible="false">
-                <a-cylinder position="-0.4 0.2 0" radius="0.2" height="0.4" color="#FF9800" class="clickable quiz-btn"
-                    animation="property: rotation; to: 0 360 0; loop: true; dur: 2000;"></a-cylinder>
-                <a-text value="Да" position="-0.4 0.2 0.21" align="center" color="white" scale="1.5 1.5 1.5"></a-text>
-                
-                <a-cylinder position="0.4 0.2 0" radius="0.2" height="0.4" color="#795548" class="clickable quiz-btn"
-                    animation="property: rotation; to: 0 -360 0; loop: true; dur: 2000;"></a-cylinder>
-                <a-text value="Не" position="0.4 0.2 0.21" align="center" color="white" scale="1.5 1.5 1.5"></a-text>
+                <!-- Yes Card -->
+                <a-entity position="-0.35 0 0" class="card-wrapper">
+                    <a-box position="0 0.15 0" width="0.45" height="0.35" depth="0.04"
+                        class="clickable answer-btn quiz-card" data-answer="yes"
+                        material="color: #ffffff; shader: flat;">
+                    </a-box>
+                    <a-plane position="0 0.15 0.025" width="0.43" height="0.33"
+                        material="color: #22c55e; shader: flat;"></a-plane>
+                    <a-text value="✓ Да" position="0 0.15 0.03" align="center"
+                        color="#ffffff" font="mozillavr" scale="0.5 0.5 0.5"></a-text>
+                </a-entity>
+
+                <!-- No Card -->
+                <a-entity position="0.35 0 0" class="card-wrapper">
+                    <a-box position="0 0.15 0" width="0.45" height="0.35" depth="0.04"
+                        class="clickable answer-btn quiz-card" data-answer="no"
+                        material="color: #ffffff; shader: flat;">
+                    </a-box>
+                    <a-plane position="0 0.15 0.025" width="0.43" height="0.33"
+                        material="color: #ef4444; shader: flat;"></a-plane>
+                    <a-text value="✗ Не" position="0 0.15 0.03" align="center"
+                        color="#ffffff" font="mozillavr" scale="0.5 0.5 0.5"></a-text>
+                </a-entity>
             </a-entity>
-            
-            <a-ring position="0 0.01 0" rotation="-90 0 0" radius-inner="0.4" radius-outer="0.8" color="#333" opacity="0.5"></a-ring>
+
+            <!-- Ground indicator -->
+            <a-ring position="0 0.005 0" rotation="-90 0 0" radius-inner="0.5" radius-outer="0.55"
+                material="color: #6366f1; opacity: 0.3; shader: flat;"></a-ring>
         </a-marker>
-        
+
         <a-entity camera></a-entity>
     </a-scene>
-    
+
     <script>
         let score = 0;
         let currentMode = 'math';
         let currentQuestion = null;
-        
+        let isProcessing = false;
+
         const mathQuestions = [
             { question: '2 + 3 = ?', answers: [5, 4, 6], correct: 0 },
             { question: '5 - 2 = ?', answers: [3, 4, 2], correct: 0 },
@@ -148,42 +390,52 @@
             { question: '3 + 5 = ?', answers: [8, 7, 9], correct: 0 },
             { question: '10 - 4 = ?', answers: [6, 5, 7], correct: 0 },
         ];
-        
+
         const alphabetQuestions = [
             { question: 'Коя буква е първа?', letters: ['А', 'Б', 'В'], correct: 0 },
             { question: 'Коя буква идва след А?', letters: ['Б', 'В', 'Г'], correct: 0 },
             { question: 'Коя буква идва след Б?', letters: ['В', 'Г', 'Д'], correct: 0 },
         ];
-        
+
         const quizQuestions = [
             { question: 'Слънцето изгрява на изток?', correct: 'yes' },
             { question: 'Рибите живеят във въздуха?', correct: 'no' },
             { question: 'Водата е мокра?', correct: 'yes' },
             { question: 'Котките лаят?', correct: 'no' },
         ];
-        
+
         function startApp() {
             document.getElementById('splash').classList.add('hidden');
             document.getElementById('arScene').classList.remove('hidden');
             document.getElementById('info').classList.remove('hidden');
             document.getElementById('question-display').classList.remove('hidden');
             document.getElementById('mode-selector').classList.remove('hidden');
+            document.getElementById('tap-hint').classList.remove('hidden');
+
             loadNewQuestion();
             setupClickListeners();
+
+            // Hide tap hint after 5 seconds
+            setTimeout(() => {
+                document.getElementById('tap-hint').classList.add('hidden');
+            }, 5000);
         }
-        
+
         function setMode(mode) {
             currentMode = mode;
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            event.target.closest('.mode-btn').classList.add('active');
+
             document.getElementById('math-content').setAttribute('visible', mode === 'math');
             document.getElementById('alphabet-content').setAttribute('visible', mode === 'alphabet');
             document.getElementById('quiz-content').setAttribute('visible', mode === 'quiz');
+
             loadNewQuestion();
         }
-        
+
         function loadNewQuestion() {
             const display = document.getElementById('question-display');
+
             if (currentMode === 'math') {
                 currentQuestion = mathQuestions[Math.floor(Math.random() * mathQuestions.length)];
                 display.textContent = currentQuestion.question;
@@ -191,53 +443,158 @@
             } else if (currentMode === 'alphabet') {
                 currentQuestion = alphabetQuestions[Math.floor(Math.random() * alphabetQuestions.length)];
                 display.textContent = currentQuestion.question;
+                updateAlphabetAnswers();
             } else if (currentMode === 'quiz') {
                 currentQuestion = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
                 display.textContent = currentQuestion.question;
             }
         }
-        
+
         function updateMathAnswers() {
             const answers = currentQuestion.answers;
-            const textElements = document.querySelectorAll('#math-content a-text');
-            textElements.forEach((el, i) => {
-                if (answers[i] !== undefined) el.setAttribute('value', answers[i].toString());
-            });
+            for (let i = 0; i < 3; i++) {
+                const textEl = document.getElementById(`math-text-${i}`);
+                if (textEl && answers[i] !== undefined) {
+                    textEl.setAttribute('value', answers[i].toString());
+                }
+            }
         }
-        
+
+        function updateAlphabetAnswers() {
+            const letters = currentQuestion.letters;
+            for (let i = 0; i < 3; i++) {
+                const textEl = document.getElementById(`alpha-text-${i}`);
+                if (textEl && letters[i] !== undefined) {
+                    textEl.setAttribute('value', letters[i]);
+                }
+            }
+        }
+
         function setupClickListeners() {
+            // Wait for scene to be fully loaded
             const scene = document.getElementById('arScene');
+
             scene.addEventListener('loaded', function() {
-                document.querySelectorAll('#math-content a-box').forEach((box, index) => {
-                    box.addEventListener('click', () => { if (currentMode === 'math') checkMathAnswer(index); });
+                console.log('Scene loaded, setting up listeners...');
+
+                // Math cards
+                document.querySelectorAll('.math-card').forEach((card) => {
+                    const index = parseInt(card.getAttribute('data-index'));
+                    card.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (currentMode === 'math' && !isProcessing) {
+                            checkMathAnswer(index);
+                        }
+                    });
                 });
-                document.querySelectorAll('#alphabet-content a-sphere').forEach((sphere, index) => {
-                    sphere.addEventListener('click', () => { if (currentMode === 'alphabet') checkAlphabetAnswer(index); });
+
+                // Alphabet cards
+                document.querySelectorAll('.alphabet-card').forEach((card) => {
+                    const index = parseInt(card.getAttribute('data-index'));
+                    card.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (currentMode === 'alphabet' && !isProcessing) {
+                            checkAlphabetAnswer(index);
+                        }
+                    });
                 });
-                document.querySelectorAll('#quiz-content a-cylinder').forEach((cylinder, index) => {
-                    cylinder.addEventListener('click', () => { if (currentMode === 'quiz') checkQuizAnswer(index === 0 ? 'yes' : 'no'); });
+
+                // Quiz cards
+                document.querySelectorAll('.quiz-card').forEach((card) => {
+                    const answer = card.getAttribute('data-answer');
+                    card.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (currentMode === 'quiz' && !isProcessing) {
+                            checkQuizAnswer(answer);
+                        }
+                    });
                 });
             });
+
+            // Fallback: also add touch support directly to canvas
+            setTimeout(() => {
+                const canvas = document.querySelector('.a-canvas');
+                if (canvas) {
+                    canvas.addEventListener('touchstart', handleTouch, { passive: false });
+                }
+            }, 1000);
         }
-        
-        function checkMathAnswer(index) { index === currentQuestion.correct ? correctAnswer() : wrongAnswer(); }
-        function checkAlphabetAnswer(index) { index === currentQuestion.correct ? correctAnswer() : wrongAnswer(); }
-        function checkQuizAnswer(answer) { answer === currentQuestion.correct ? correctAnswer() : wrongAnswer(); }
-        
+
+        function handleTouch(e) {
+            // This is a backup touch handler
+            // A-Frame's cursor should handle most cases
+        }
+
+        function checkMathAnswer(index) {
+            if (index === currentQuestion.correct) {
+                correctAnswer();
+            } else {
+                wrongAnswer();
+            }
+        }
+
+        function checkAlphabetAnswer(index) {
+            if (index === currentQuestion.correct) {
+                correctAnswer();
+            } else {
+                wrongAnswer();
+            }
+        }
+
+        function checkQuizAnswer(answer) {
+            if (answer === currentQuestion.correct) {
+                correctAnswer();
+            } else {
+                wrongAnswer();
+            }
+        }
+
         function correctAnswer() {
+            isProcessing = true;
             score++;
             document.getElementById('score').textContent = score;
-            showFeedback('🎉 Браво!');
-            setTimeout(loadNewQuestion, 1500);
+            showFeedback(true);
+            setTimeout(() => {
+                loadNewQuestion();
+                isProcessing = false;
+            }, 1500);
         }
-        
-        function wrongAnswer() { showFeedback('❌ Опитай пак!'); }
-        
-        function showFeedback(text) {
+
+        function wrongAnswer() {
+            isProcessing = true;
+            showFeedback(false);
+            setTimeout(() => {
+                isProcessing = false;
+            }, 1000);
+        }
+
+        function showFeedback(isCorrect) {
             const feedback = document.getElementById('feedback');
-            feedback.textContent = text;
-            feedback.style.display = 'block';
-            setTimeout(() => { feedback.style.display = 'none'; }, 1000);
+            const emoji = feedback.querySelector('.emoji');
+            const text = feedback.querySelector('.text');
+
+            feedback.classList.remove('correct', 'wrong', 'show');
+
+            if (isCorrect) {
+                emoji.textContent = '🎉';
+                text.textContent = 'Браво!';
+                feedback.classList.add('correct');
+            } else {
+                emoji.textContent = '😅';
+                text.textContent = 'Опитай пак!';
+                feedback.classList.add('wrong');
+            }
+
+            // Force reflow
+            void feedback.offsetWidth;
+            feedback.classList.add('show');
+
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 1200);
         }
     </script>
 </body>

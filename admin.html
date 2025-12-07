@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Мече - Админ Панел</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 { font-size: 1.5em; display: flex; align-items: center; gap: 10px; }
+        .header a { color: #a78bfa; text-decoration: none; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #a78bfa;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 1em;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .answers-container {
+            display: grid;
+            gap: 15px;
+        }
+        .answer-item {
+            background: rgba(255,255,255,0.05);
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .answer-item.correct {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+        .answer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .answer-number {
+            font-weight: 700;
+            color: #a78bfa;
+        }
+        .correct-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .correct-toggle input { width: auto; }
+
+        .model-settings {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .model-settings input {
+            text-align: center;
+        }
+        .model-settings label {
+            font-size: 0.85em;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .file-upload {
+            border: 2px dashed rgba(255,255,255,0.2);
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .file-upload:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        .file-upload.has-file {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+        .file-upload input { display: none; }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn.secondary {
+            background: rgba(255,255,255,0.1);
+        }
+        .btn.danger {
+            background: #ef4444;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .questions-list {
+            display: grid;
+            gap: 15px;
+        }
+        .question-card {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .question-card .info h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        .question-card .info .meta {
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+        .question-card .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .mode-badge.math { background: #3b82f6; }
+        .mode-badge.alphabet { background: #22c55e; }
+        .mode-badge.quiz { background: #f59e0b; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #22c55e;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 10px;
+            display: none;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.error { background: #ef4444; }
+        .toast.show { display: block; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .hidden { display: none !important; }
+
+        /* Model Library */
+        .model-library {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .model-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .model-item:hover {
+            border-color: #667eea;
+        }
+        .model-item.selected {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+        .model-item .icon { font-size: 2em; margin-bottom: 8px; }
+        .model-item .name { font-size: 0.9em; }
+
+        /* Sound Library */
+        .sound-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .sound-item button {
+            background: #667eea;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧸 AR Мече - Админ Панел</h1>
+        <a href="index.html">← Към приложението</a>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" data-tab="questions">📝 Въпроси</button>
+            <button class="tab" data-tab="models">🦋 3D Модели</button>
+            <button class="tab" data-tab="sounds">🔊 Звуци</button>
+        </div>
+
+        <!-- Questions Tab -->
+        <div id="questions-tab">
+            <div class="section">
+                <h2>➕ Добави нов въпрос</h2>
+                <form id="question-form">
+                    <div class="form-group">
+                        <label>Категория</label>
+                        <select id="q-category">
+                            <option value="math">🔢 Математика</option>
+                            <option value="alphabet">🔤 Азбука</option>
+                            <option value="quiz">❓ Викторина</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Въпрос</label>
+                        <input type="text" id="q-text" placeholder="Напр: 2 + 3 = ?" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Звук за въпроса (опционално)</label>
+                        <select id="q-sound">
+                            <option value="">-- Без звук --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Отговори</label>
+                        <div class="answers-container" id="answers-container">
+                            <!-- Answer 1 -->
+                            <div class="answer-item" data-index="0">
+                                <div class="answer-header">
+                                    <span class="answer-number">Отговор 1</span>
+                                    <div class="correct-toggle">
+                                        <input type="radio" name="correct" value="0" checked>
+                                        <label>Верен</label>
+                                    </div>
+                                </div>
+                                <input type="text" class="answer-text" placeholder="Текст на отговора" required>
+
+                                <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                                    <label style="font-size: 0.85em;">3D Модел</label>
+                                    <select class="answer-model">
+                                        <option value="">-- Избери модел --</option>
+                                    </select>
+                                </div>
+
+                                <div class="model-settings">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Размер</label>
+                                        <input type="number" class="model-scale" value="0.02" step="0.01" min="0.01" max="1">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Скорост</label>
+                                        <input type="number" class="model-speed" value="2000" step="100" min="500" max="5000">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Ротация</label>
+                                        <input type="number" class="model-rotation" value="0" step="15" min="-180" max="180">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Answer 2 -->
+                            <div class="answer-item" data-index="1">
+                                <div class="answer-header">
+                                    <span class="answer-number">Отговор 2</span>
+                                    <div class="correct-toggle">
+                                        <input type="radio" name="correct" value="1">
+                                        <label>Верен</label>
+                                    </div>
+                                </div>
+                                <input type="text" class="answer-text" placeholder="Текст на отговора" required>
+
+                                <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                                    <label style="font-size: 0.85em;">3D Модел</label>
+                                    <select class="answer-model">
+                                        <option value="">-- Избери модел --</option>
+                                    </select>
+                                </div>
+
+                                <div class="model-settings">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Размер</label>
+                                        <input type="number" class="model-scale" value="0.02" step="0.01" min="0.01" max="1">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Скорост</label>
+                                        <input type="number" class="model-speed" value="2500" step="100" min="500" max="5000">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Ротация</label>
+                                        <input type="number" class="model-rotation" value="45" step="15" min="-180" max="180">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Answer 3 -->
+                            <div class="answer-item" data-index="2">
+                                <div class="answer-header">
+                                    <span class="answer-number">Отговор 3</span>
+                                    <div class="correct-toggle">
+                                        <input type="radio" name="correct" value="2">
+                                        <label>Верен</label>
+                                    </div>
+                                </div>
+                                <input type="text" class="answer-text" placeholder="Текст на отговора" required>
+
+                                <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                                    <label style="font-size: 0.85em;">3D Модел</label>
+                                    <select class="answer-model">
+                                        <option value="">-- Избери модел --</option>
+                                    </select>
+                                </div>
+
+                                <div class="model-settings">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Размер</label>
+                                        <input type="number" class="model-scale" value="0.02" step="0.01" min="0.01" max="1">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Скорост</label>
+                                        <input type="number" class="model-speed" value="1800" step="100" min="500" max="5000">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Ротация</label>
+                                        <input type="number" class="model-rotation" value="-45" step="15" min="-180" max="180">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" id="save-btn">💾 Запази въпрос</button>
+                    <button type="button" class="btn secondary" id="cancel-edit" style="display: none;">Отказ</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>📋 Съществуващи въпроси</h2>
+                <div id="questions-list" class="questions-list">
+                    <div class="loading">Зареждане...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Models Tab -->
+        <div id="models-tab" class="hidden">
+            <div class="section">
+                <h2>📤 Качи нов 3D модел</h2>
+                <div class="file-upload" id="model-upload">
+                    <input type="file" id="model-file" accept=".glb,.gltf">
+                    <p>🦋 Кликни за да качиш .glb файл</p>
+                    <p style="font-size: 0.85em; color: #94a3b8; margin-top: 8px;">Макс. 5MB, препоръчително под 2MB</p>
+                </div>
+                <div id="upload-progress" class="hidden" style="margin-top: 15px;">
+                    <p>Качване... <span id="progress-percent">0</span>%</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🗂️ Библиотека с модели</h2>
+                <div id="models-library" class="model-library">
+                    <div class="loading">Зареждане...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sounds Tab -->
+        <div id="sounds-tab" class="hidden">
+            <div class="section">
+                <h2>📤 Качи нов звук</h2>
+                <div class="file-upload" id="sound-upload">
+                    <input type="file" id="sound-file" accept=".mp3,.wav,.ogg">
+                    <p>🔊 Кликни за да качиш аудио файл</p>
+                    <p style="font-size: 0.85em; color: #94a3b8; margin-top: 8px;">.mp3, .wav, .ogg - макс. 2MB</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎵 Библиотека със звуци</h2>
+                <div id="sounds-library">
+                    <div class="loading">Зареждане...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQxYVcVSlxUZ6d4t87IppRRpD7r4R7DDk",
+            authDomain: "ar-bear-education.firebaseapp.com",
+            projectId: "ar-bear-education",
+            storageBucket: "ar-bear-education.firebasestorage.app",
+            messagingSenderId: "866761773486",
+            appId: "1:866761773486:web:5dafa80d01a6b94372b83f",
+            measurementId: "G-1ELMXFB3YN"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // State
+        let models = [];
+        let sounds = [];
+        let questions = [];
+        let editingId = null;
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                document.getElementById('questions-tab').classList.add('hidden');
+                document.getElementById('models-tab').classList.add('hidden');
+                document.getElementById('sounds-tab').classList.add('hidden');
+                document.getElementById(tab.dataset.tab + '-tab').classList.remove('hidden');
+            });
+        });
+
+        // Toast notifications
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = isError ? 'toast show error' : 'toast show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Load all data
+        async function loadData() {
+            await Promise.all([loadModels(), loadSounds(), loadQuestions()]);
+        }
+
+        // Load 3D Models
+        async function loadModels() {
+            try {
+                const snapshot = await db.collection('models').orderBy('name').get();
+                models = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderModels();
+                updateModelSelects();
+            } catch (error) {
+                console.error('Error loading models:', error);
+                showToast('Грешка при зареждане на модели', true);
+            }
+        }
+
+        // Load Sounds
+        async function loadSounds() {
+            try {
+                const snapshot = await db.collection('sounds').orderBy('name').get();
+                sounds = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderSounds();
+                updateSoundSelects();
+            } catch (error) {
+                console.error('Error loading sounds:', error);
+            }
+        }
+
+        // Load Questions
+        async function loadQuestions() {
+            try {
+                const snapshot = await db.collection('questions').orderBy('createdAt', 'desc').get();
+                questions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderQuestions();
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                showToast('Грешка при зареждане на въпроси', true);
+            }
+        }
+
+        // Render Models Library
+        function renderModels() {
+            const container = document.getElementById('models-library');
+            if (models.length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8;">Няма качени модели. Качи първия си .glb файл!</p>';
+                return;
+            }
+            container.innerHTML = models.map(model => `
+                <div class="model-item" data-id="${model.id}">
+                    <div class="icon">🦋</div>
+                    <div class="name">${model.name}</div>
+                    <button class="btn danger" style="margin-top: 8px; padding: 6px 12px; font-size: 0.8em;" onclick="deleteModel('${model.id}')">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        // Render Sounds Library
+        function renderSounds() {
+            const container = document.getElementById('sounds-library');
+            if (sounds.length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8;">Няма качени звуци.</p>';
+                return;
+            }
+            container.innerHTML = sounds.map(sound => `
+                <div class="sound-item">
+                    <button onclick="playSound('${sound.url}')">▶️</button>
+                    <span style="flex: 1;">${sound.name}</span>
+                    <button class="btn danger" style="padding: 6px 12px; font-size: 0.8em;" onclick="deleteSound('${sound.id}')">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        // Render Questions List
+        function renderQuestions() {
+            const container = document.getElementById('questions-list');
+            if (questions.length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8;">Няма създадени въпроси. Добави първия си въпрос!</p>';
+                return;
+            }
+            container.innerHTML = questions.map(q => `
+                <div class="question-card">
+                    <div class="info">
+                        <h3>${q.text}</h3>
+                        <div class="meta">
+                            <span class="mode-badge ${q.category}">${getCategoryName(q.category)}</span>
+                            Отговори: ${q.answers.map(a => a.text).join(', ')}
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn secondary" onclick="editQuestion('${q.id}')">✏️ Редактирай</button>
+                        <button class="btn danger" onclick="deleteQuestion('${q.id}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryName(cat) {
+            const names = { math: '🔢 Математика', alphabet: '🔤 Азбука', quiz: '❓ Викторина' };
+            return names[cat] || cat;
+        }
+
+        // Update model selects in form
+        function updateModelSelects() {
+            const options = '<option value="">-- Избери модел --</option>' +
+                models.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            document.querySelectorAll('.answer-model').forEach(select => {
+                const current = select.value;
+                select.innerHTML = options;
+                select.value = current;
+            });
+        }
+
+        // Update sound selects
+        function updateSoundSelects() {
+            const options = '<option value="">-- Без звук --</option>' +
+                sounds.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            document.getElementById('q-sound').innerHTML = options;
+        }
+
+        // Upload Model
+        document.getElementById('model-upload').addEventListener('click', () => {
+            document.getElementById('model-file').click();
+        });
+
+        document.getElementById('model-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Файлът е прекалено голям! Максимум 5MB.', true);
+                return;
+            }
+
+            const uploadDiv = document.getElementById('model-upload');
+            const progressDiv = document.getElementById('upload-progress');
+            progressDiv.classList.remove('hidden');
+
+            try {
+                const fileName = `models/${Date.now()}_${file.name}`;
+                const ref = storage.ref(fileName);
+                const task = ref.put(file);
+
+                task.on('state_changed', (snapshot) => {
+                    const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    document.getElementById('progress-percent').textContent = percent;
+                });
+
+                await task;
+                const url = await ref.getDownloadURL();
+
+                // Save to Firestore
+                await db.collection('models').add({
+                    name: file.name.replace(/\.(glb|gltf)$/i, ''),
+                    url: url,
+                    fileName: fileName,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                uploadDiv.classList.add('has-file');
+                showToast('Моделът е качен успешно!');
+                await loadModels();
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                showToast('Грешка при качване: ' + error.message, true);
+            }
+
+            progressDiv.classList.add('hidden');
+            e.target.value = '';
+        });
+
+        // Upload Sound
+        document.getElementById('sound-upload').addEventListener('click', () => {
+            document.getElementById('sound-file').click();
+        });
+
+        document.getElementById('sound-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Файлът е прекалено голям! Максимум 2MB.', true);
+                return;
+            }
+
+            try {
+                const fileName = `sounds/${Date.now()}_${file.name}`;
+                const ref = storage.ref(fileName);
+                await ref.put(file);
+                const url = await ref.getDownloadURL();
+
+                await db.collection('sounds').add({
+                    name: file.name.replace(/\.(mp3|wav|ogg)$/i, ''),
+                    url: url,
+                    fileName: fileName,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showToast('Звукът е качен успешно!');
+                await loadSounds();
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                showToast('Грешка при качване: ' + error.message, true);
+            }
+
+            e.target.value = '';
+        });
+
+        // Play sound preview
+        function playSound(url) {
+            const audio = new Audio(url);
+            audio.play();
+        }
+
+        // Delete model
+        async function deleteModel(id) {
+            if (!confirm('Сигурен ли си, че искаш да изтриеш този модел?')) return;
+
+            try {
+                const doc = await db.collection('models').doc(id).get();
+                const data = doc.data();
+
+                // Delete from storage
+                if (data.fileName) {
+                    await storage.ref(data.fileName).delete();
+                }
+
+                // Delete from Firestore
+                await db.collection('models').doc(id).delete();
+
+                showToast('Моделът е изтрит!');
+                await loadModels();
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                showToast('Грешка при изтриване', true);
+            }
+        }
+
+        // Delete sound
+        async function deleteSound(id) {
+            if (!confirm('Сигурен ли си, че искаш да изтриеш този звук?')) return;
+
+            try {
+                const doc = await db.collection('sounds').doc(id).get();
+                const data = doc.data();
+
+                if (data.fileName) {
+                    await storage.ref(data.fileName).delete();
+                }
+
+                await db.collection('sounds').doc(id).delete();
+
+                showToast('Звукът е изтрит!');
+                await loadSounds();
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                showToast('Грешка при изтриване', true);
+            }
+        }
+
+        // Save Question
+        document.getElementById('question-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true;
+
+            try {
+                const category = document.getElementById('q-category').value;
+                const text = document.getElementById('q-text').value;
+                const soundId = document.getElementById('q-sound').value;
+                const correct = parseInt(document.querySelector('input[name="correct"]:checked').value);
+
+                const answers = [];
+                document.querySelectorAll('.answer-item').forEach((item, index) => {
+                    const answerText = item.querySelector('.answer-text').value;
+                    const modelId = item.querySelector('.answer-model').value;
+                    const scale = parseFloat(item.querySelector('.model-scale').value);
+                    const speed = parseInt(item.querySelector('.model-speed').value);
+                    const rotation = parseInt(item.querySelector('.model-rotation').value);
+
+                    // Get model URL if selected
+                    let modelUrl = '';
+                    if (modelId) {
+                        const model = models.find(m => m.id === modelId);
+                        if (model) modelUrl = model.url;
+                    }
+
+                    answers.push({
+                        text: answerText,
+                        modelId: modelId,
+                        modelUrl: modelUrl,
+                        scale: scale,
+                        speed: speed,
+                        rotation: rotation
+                    });
+                });
+
+                // Get sound URL if selected
+                let soundUrl = '';
+                if (soundId) {
+                    const sound = sounds.find(s => s.id === soundId);
+                    if (sound) soundUrl = sound.url;
+                }
+
+                const questionData = {
+                    category,
+                    text,
+                    soundId,
+                    soundUrl,
+                    answers,
+                    correct,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (editingId) {
+                    await db.collection('questions').doc(editingId).update(questionData);
+                    showToast('Въпросът е обновен!');
+                    editingId = null;
+                    document.getElementById('cancel-edit').style.display = 'none';
+                    document.getElementById('save-btn').innerHTML = '💾 Запази въпрос';
+                } else {
+                    questionData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('questions').add(questionData);
+                    showToast('Въпросът е добавен!');
+                }
+
+                // Reset form
+                document.getElementById('question-form').reset();
+                document.querySelector('input[name="correct"][value="0"]').checked = true;
+
+                await loadQuestions();
+
+            } catch (error) {
+                console.error('Save error:', error);
+                showToast('Грешка при запазване: ' + error.message, true);
+            }
+
+            btn.disabled = false;
+        });
+
+        // Edit Question
+        window.editQuestion = async function(id) {
+            const q = questions.find(q => q.id === id);
+            if (!q) return;
+
+            editingId = id;
+            document.getElementById('q-category').value = q.category;
+            document.getElementById('q-text').value = q.text;
+            document.getElementById('q-sound').value = q.soundId || '';
+
+            q.answers.forEach((answer, index) => {
+                const item = document.querySelector(`.answer-item[data-index="${index}"]`);
+                if (item) {
+                    item.querySelector('.answer-text').value = answer.text;
+                    item.querySelector('.answer-model').value = answer.modelId || '';
+                    item.querySelector('.model-scale').value = answer.scale || 0.02;
+                    item.querySelector('.model-speed').value = answer.speed || 2000;
+                    item.querySelector('.model-rotation').value = answer.rotation || 0;
+                }
+            });
+
+            document.querySelector(`input[name="correct"][value="${q.correct}"]`).checked = true;
+
+            document.getElementById('cancel-edit').style.display = 'inline-flex';
+            document.getElementById('save-btn').innerHTML = '💾 Обнови въпрос';
+
+            // Scroll to form
+            document.getElementById('question-form').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // Cancel edit
+        document.getElementById('cancel-edit').addEventListener('click', () => {
+            editingId = null;
+            document.getElementById('question-form').reset();
+            document.getElementById('cancel-edit').style.display = 'none';
+            document.getElementById('save-btn').innerHTML = '💾 Запази въпрос';
+        });
+
+        // Delete Question
+        window.deleteQuestion = async function(id) {
+            if (!confirm('Сигурен ли си, че искаш да изтриеш този въпрос?')) return;
+
+            try {
+                await db.collection('questions').doc(id).delete();
+                showToast('Въпросът е изтрит!');
+                await loadQuestions();
+            } catch (error) {
+                console.error('Delete error:', error);
+                showToast('Грешка при изтриване', true);
+            }
+        };
+
+        // Highlight correct answer
+        document.querySelectorAll('input[name="correct"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.querySelectorAll('.answer-item').forEach(item => item.classList.remove('correct'));
+                const selected = document.querySelector(`input[name="correct"]:checked`);
+                if (selected) {
+                    document.querySelector(`.answer-item[data-index="${selected.value}"]`).classList.add('correct');
+                }
+            });
+        });
+
+        // Initialize
+        document.querySelector('.answer-item[data-index="0"]').classList.add('correct');
+        loadData();
+    </script>
+</body>
+</html>

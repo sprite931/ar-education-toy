@@ -7,6 +7,9 @@
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script>
         // Billboard component - always face camera (Y-axis only for upright text)
         AFRAME.registerComponent('billboard', {
@@ -293,14 +296,32 @@
     </a-scene>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQxYVcVSlxUZ6d4t87IppRRpD7r4R7DDk",
+            authDomain: "ar-bear-education.firebaseapp.com",
+            projectId: "ar-bear-education",
+            storageBucket: "ar-bear-education.firebasestorage.app",
+            messagingSenderId: "866761773486",
+            appId: "1:866761773486:web:5dafa80d01a6b94372b83f",
+            measurementId: "G-1ELMXFB3YN"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         let score = 0;
         let currentMode = 'math';
         let currentQuestion = null;
         let isProcessing = false;
         let markerVisible = false;
         let animationFrame = null;
+        let firebaseQuestions = { math: [], alphabet: [], quiz: [] };
+        let useFirebase = false;
 
-        const questions = {
+        // Fallback questions (used if Firebase is empty or fails)
+        const defaultQuestions = {
             math: [
                 { q: '2 + 3 = ?', answers: ['5', '4', '6'], correct: 0 },
                 { q: '5 - 2 = ?', answers: ['3', '4', '2'], correct: 0 },
@@ -320,12 +341,65 @@
             ]
         };
 
-        function startApp() {
+        // Load questions from Firebase
+        async function loadFirebaseQuestions() {
+            try {
+                const snapshot = await db.collection('questions').get();
+                if (snapshot.empty) {
+                    console.log('No Firebase questions, using defaults');
+                    return;
+                }
+
+                // Reset Firebase questions
+                firebaseQuestions = { math: [], alphabet: [], quiz: [] };
+
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const category = data.category || 'math';
+
+                    // Convert Firebase format to app format
+                    const question = {
+                        q: data.text,
+                        answers: data.answers.map(a => a.text),
+                        correct: data.correct,
+                        // Store full answer data for model/sound info
+                        answerData: data.answers,
+                        soundUrl: data.soundUrl || null
+                    };
+
+                    if (firebaseQuestions[category]) {
+                        firebaseQuestions[category].push(question);
+                    }
+                });
+
+                // Check if we have any Firebase questions
+                const totalQuestions = Object.values(firebaseQuestions).reduce((sum, arr) => sum + arr.length, 0);
+                if (totalQuestions > 0) {
+                    useFirebase = true;
+                    console.log('Loaded', totalQuestions, 'questions from Firebase');
+                }
+            } catch (error) {
+                console.error('Error loading Firebase questions:', error);
+            }
+        }
+
+        // Get questions for current mode (Firebase or default)
+        function getQuestions() {
+            if (useFirebase && firebaseQuestions[currentMode].length > 0) {
+                return firebaseQuestions[currentMode];
+            }
+            return defaultQuestions[currentMode];
+        }
+
+        async function startApp() {
             document.getElementById('splash').classList.add('hidden');
             document.getElementById('arScene').classList.remove('hidden');
             document.getElementById('score-panel').classList.remove('hidden');
             document.getElementById('mode-selector').classList.remove('hidden');
             document.getElementById('marker-hint').classList.remove('hidden');
+
+            // Load questions from Firebase
+            await loadFirebaseQuestions();
 
             setupModeButtons();
             setupMarkerEvents();
@@ -438,17 +512,67 @@
 
         // Question bubble is now fixed via CSS - no tracking needed
 
+        // Default answer positions and animations
+        const defaultPositions = [
+            { pos: '-0.6 0.3 0', to: '-0.55 0.45 0.1', dur: 2000, rot: '0 0 0' },
+            { pos: '0 0.35 0.3', to: '0.05 0.5 0.25', dur: 2500, rot: '0 45 0' },
+            { pos: '0.6 0.3 0', to: '0.65 0.45 -0.1', dur: 1800, rot: '0 -45 0' }
+        ];
+
         function loadQuestion() {
-            const questionList = questions[currentMode];
+            const questionList = getQuestions();
             currentQuestion = questionList[Math.floor(Math.random() * questionList.length)];
 
             document.getElementById('question-text').textContent = currentQuestion.q;
 
-            // Update 3D answer text labels (troika-text)
+            // Play question sound if available
+            if (currentQuestion.soundUrl) {
+                const audio = new Audio(currentQuestion.soundUrl);
+                audio.play().catch(e => console.log('Audio play failed:', e));
+            }
+
+            // Update 3D answer text labels and models
             currentQuestion.answers.forEach((answer, i) => {
                 const textEl = document.getElementById('answer-text-' + i);
+                const answerEntity = document.getElementById('answer-' + i);
+                const modelEntity = answerEntity ? answerEntity.querySelector('[gltf-model]') : null;
+
                 if (textEl) {
                     textEl.setAttribute('troika-text', 'value', answer);
+                }
+
+                // Apply custom model settings from Firebase if available
+                if (currentQuestion.answerData && currentQuestion.answerData[i]) {
+                    const answerConfig = currentQuestion.answerData[i];
+
+                    // Update model if custom URL provided
+                    if (modelEntity && answerConfig.modelUrl) {
+                        modelEntity.setAttribute('gltf-model', answerConfig.modelUrl);
+                    }
+
+                    // Update scale
+                    if (modelEntity && answerConfig.scale) {
+                        const s = answerConfig.scale;
+                        modelEntity.setAttribute('scale', `${s} ${s} ${s}`);
+                    }
+
+                    // Update rotation
+                    if (modelEntity && answerConfig.rotation !== undefined) {
+                        modelEntity.setAttribute('rotation', `0 ${answerConfig.rotation} 0`);
+                    }
+
+                    // Update animation speed
+                    if (answerEntity && answerConfig.speed) {
+                        const defaults = defaultPositions[i];
+                        answerEntity.setAttribute('animation__move', {
+                            property: 'position',
+                            to: defaults.to,
+                            dir: 'alternate',
+                            loop: true,
+                            dur: answerConfig.speed,
+                            easing: 'easeInOutSine'
+                        });
+                    }
                 }
             });
 

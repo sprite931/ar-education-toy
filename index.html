@@ -107,15 +107,13 @@
         #marker-hint.hidden { display: none; }
         #marker-hint .icon { font-size: 2.5em; margin-bottom: 15px; display: block; }
 
-        /* Question bubble - FIXED at top of screen */
+        /* Question bubble - follows marker position */
         #question-bubble {
             position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
             z-index: 100;
             pointer-events: none;
             display: none;
+            transition: left 0.1s ease-out, top 0.1s ease-out;
         }
         #question-bubble.visible { display: block; }
         #question-bubble .bubble {
@@ -127,38 +125,6 @@
             color: white;
             box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
             white-space: nowrap;
-        }
-
-        /* Answer labels - follow 3D objects */
-        .answer-label {
-            position: fixed;
-            z-index: 100;
-            pointer-events: none;
-            display: none;
-            transform: translate(-50%, -50%);
-        }
-        .answer-label.visible { display: flex; }
-        .answer-label .label-content {
-            background: rgba(255,255,255,0.95);
-            color: #1a1a2e;
-            padding: 10px 18px;
-            border-radius: 16px;
-            font-size: 1.5em;
-            font-weight: 800;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            border: 4px solid;
-        }
-        .answer-label[data-index="0"] .label-content {
-            border-color: #22c55e;
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(34,197,94,0.15));
-        }
-        .answer-label[data-index="1"] .label-content {
-            border-color: #ef4444;
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(239,68,68,0.15));
-        }
-        .answer-label[data-index="2"] .label-content {
-            border-color: #3b82f6;
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(59,130,246,0.15));
         }
 
         #feedback {
@@ -215,16 +181,6 @@
         <div class="bubble" id="question-text">2 + 3 = ?</div>
     </div>
 
-    <!-- Answer labels that follow 3D objects -->
-    <div class="answer-label" id="label-0" data-index="0">
-        <div class="label-content">5</div>
-    </div>
-    <div class="answer-label" id="label-1" data-index="1">
-        <div class="label-content">4</div>
-    </div>
-    <div class="answer-label" id="label-2" data-index="2">
-        <div class="label-content">6</div>
-    </div>
 
     <div id="mode-selector" class="hidden">
         <button class="mode-btn active" data-mode="math">
@@ -255,14 +211,19 @@
 
         <a-marker preset="hiro" id="mainMarker">
             <!-- Butterfly 1 - Green -->
-            <a-entity id="answer-0" class="clickable" position="-0.5 0.4 0" data-answer="0">
-                <a-entity rotation="0 0 0"
-                    animation="property: position; to: -0.45 0.5 0.1; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine;"
-                    animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear;">
-                    <!-- Body -->
+            <a-entity id="answer-0" class="clickable" position="-0.5 0.4 0" data-answer="0"
+                animation="property: position; to: -0.45 0.5 0.1; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine;">
+                <!-- 3D Text Label - always faces camera -->
+                <a-entity id="text-0" position="0 0.25 0" look-at="[camera]">
+                    <a-plane width="0.3" height="0.18" color="#22c55e" opacity="0.95"
+                        side="double" shader="flat"></a-plane>
+                    <a-text id="answer-text-0" value="5" align="center" color="white"
+                        width="1.5" position="0 0 0.01" font="roboto"></a-text>
+                </a-entity>
+                <!-- Butterfly body -->
+                <a-entity animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear;">
                     <a-sphere radius="0.08" color="#22c55e" position="0 0 0"></a-sphere>
                     <a-sphere radius="0.05" color="#16a34a" position="0 0.1 0"></a-sphere>
-                    <!-- Wings -->
                     <a-circle radius="0.12" color="#4ade80" position="0.08 0 0" rotation="0 90 20"
                         animation="property: rotation; to: 0 90 -20; dir: alternate; loop: true; dur: 300;"></a-circle>
                     <a-circle radius="0.12" color="#4ade80" position="-0.08 0 0" rotation="0 -90 -20"
@@ -271,16 +232,19 @@
             </a-entity>
 
             <!-- Ladybug - Red -->
-            <a-entity id="answer-1" class="clickable" position="0 0.5 0" data-answer="1">
-                <a-entity
-                    animation="property: position; to: 0.05 0.6 -0.05; dir: alternate; loop: true; dur: 2500; easing: easeInOutSine;"
-                    animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 10000; easing: linear;">
-                    <!-- Body -->
-                    <a-sphere radius="0.1" color="#ef4444" position="0 0 0"
-                        theta-length="180" phi-length="360"></a-sphere>
-                    <!-- Head -->
+            <a-entity id="answer-1" class="clickable" position="0 0.5 0" data-answer="1"
+                animation="property: position; to: 0.05 0.6 -0.05; dir: alternate; loop: true; dur: 2500; easing: easeInOutSine;">
+                <!-- 3D Text Label -->
+                <a-entity id="text-1" position="0 0.25 0" look-at="[camera]">
+                    <a-plane width="0.3" height="0.18" color="#ef4444" opacity="0.95"
+                        side="double" shader="flat"></a-plane>
+                    <a-text id="answer-text-1" value="4" align="center" color="white"
+                        width="1.5" position="0 0 0.01" font="roboto"></a-text>
+                </a-entity>
+                <!-- Ladybug body -->
+                <a-entity animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 10000; easing: linear;">
+                    <a-sphere radius="0.1" color="#ef4444" position="0 0 0"></a-sphere>
                     <a-sphere radius="0.05" color="#1a1a2e" position="0 0 0.1"></a-sphere>
-                    <!-- Spots -->
                     <a-circle radius="0.025" color="#1a1a2e" position="0.05 0.08 0" rotation="-30 0 0"></a-circle>
                     <a-circle radius="0.025" color="#1a1a2e" position="-0.05 0.08 0" rotation="-30 0 0"></a-circle>
                     <a-circle radius="0.02" color="#1a1a2e" position="0 0.09 -0.03" rotation="-20 0 0"></a-circle>
@@ -288,14 +252,19 @@
             </a-entity>
 
             <!-- Butterfly 2 - Blue -->
-            <a-entity id="answer-2" class="clickable" position="0.5 0.4 0" data-answer="2">
-                <a-entity rotation="0 0 0"
-                    animation="property: position; to: 0.55 0.5 -0.1; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine;"
-                    animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 7000; easing: linear;">
-                    <!-- Body -->
+            <a-entity id="answer-2" class="clickable" position="0.5 0.4 0" data-answer="2"
+                animation="property: position; to: 0.55 0.5 -0.1; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine;">
+                <!-- 3D Text Label -->
+                <a-entity id="text-2" position="0 0.25 0" look-at="[camera]">
+                    <a-plane width="0.3" height="0.18" color="#3b82f6" opacity="0.95"
+                        side="double" shader="flat"></a-plane>
+                    <a-text id="answer-text-2" value="6" align="center" color="white"
+                        width="1.5" position="0 0 0.01" font="roboto"></a-text>
+                </a-entity>
+                <!-- Butterfly body -->
+                <a-entity animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 7000; easing: linear;">
                     <a-sphere radius="0.08" color="#3b82f6" position="0 0 0"></a-sphere>
                     <a-sphere radius="0.05" color="#2563eb" position="0 0.1 0"></a-sphere>
-                    <!-- Wings -->
                     <a-circle radius="0.12" color="#60a5fa" position="0.08 0 0" rotation="0 90 20"
                         animation="property: rotation; to: 0 90 -20; dir: alternate; loop: true; dur: 350;"></a-circle>
                     <a-circle radius="0.12" color="#60a5fa" position="-0.08 0 0" rotation="0 -90 -20"
@@ -373,13 +342,11 @@
                 markerVisible = true;
                 document.getElementById('marker-hint').classList.add('hidden');
                 document.getElementById('question-bubble').classList.add('visible');
-                document.querySelectorAll('.answer-label').forEach(l => l.classList.add('visible'));
             });
             marker.addEventListener('markerLost', () => {
                 markerVisible = false;
                 document.getElementById('marker-hint').classList.remove('hidden');
                 document.getElementById('question-bubble').classList.remove('visible');
-                document.querySelectorAll('.answer-label').forEach(l => l.classList.remove('visible'));
             });
         }
 
@@ -463,70 +430,42 @@
 
         function startLabelTracking() {
             const scene = document.getElementById('arScene');
+            const marker = document.getElementById('mainMarker');
 
-            function updateLabels() {
+            function updateQuestionBubble() {
                 if (!markerVisible || !scene.camera) {
-                    animationFrame = requestAnimationFrame(updateLabels);
+                    animationFrame = requestAnimationFrame(updateQuestionBubble);
                     return;
                 }
 
                 const canvas = scene.canvas;
                 if (!canvas) {
-                    animationFrame = requestAnimationFrame(updateLabels);
+                    animationFrame = requestAnimationFrame(updateQuestionBubble);
                     return;
                 }
 
                 const rect = canvas.getBoundingClientRect();
                 const threeCamera = scene.camera;
 
-                // Update answer labels - track the actual 3D object positions
-                const cards = [
-                    document.getElementById('answer-0'),
-                    document.getElementById('answer-1'),
-                    document.getElementById('answer-2')
-                ];
+                // Update question bubble - follows marker center (stable, no bobbing)
+                const markerPos = new THREE.Vector3(0, 0.8, 0);
+                marker.object3D.localToWorld(markerPos);
+                const bubbleScreen = markerPos.clone().project(threeCamera);
 
-                cards.forEach((card, index) => {
-                    const label = document.getElementById('label-' + index);
-                    if (!card || !label) return;
+                if (bubbleScreen.z < 1) {
+                    const bubbleX = (bubbleScreen.x * 0.5 + 0.5) * rect.width + rect.left;
+                    const bubbleY = (-bubbleScreen.y * 0.5 + 0.5) * rect.height + rect.top;
 
-                    // Hide 3rd label in quiz mode
-                    if (currentMode === 'quiz' && index === 2) {
-                        label.classList.remove('visible');
-                        return;
-                    }
+                    const bubble = document.getElementById('question-bubble');
+                    bubble.style.left = bubbleX + 'px';
+                    bubble.style.top = bubbleY + 'px';
+                    bubble.style.transform = 'translate(-50%, -100%)';
+                }
 
-                    const obj = card.object3D;
-                    if (!obj) return;
-
-                    // Get the world position of the 3D object
-                    const worldPos = new THREE.Vector3();
-                    obj.getWorldPosition(worldPos);
-
-                    // Project to screen coordinates
-                    const screenPos = worldPos.clone().project(threeCamera);
-
-                    // Check if object is in front of camera
-                    if (screenPos.z > 1) {
-                        label.classList.remove('visible');
-                        return;
-                    }
-
-                    const screenX = (screenPos.x * 0.5 + 0.5) * rect.width + rect.left;
-                    const screenY = (-screenPos.y * 0.5 + 0.5) * rect.height + rect.top;
-
-                    label.style.left = screenX + 'px';
-                    label.style.top = screenY + 'px';
-
-                    if (markerVisible) {
-                        label.classList.add('visible');
-                    }
-                });
-
-                animationFrame = requestAnimationFrame(updateLabels);
+                animationFrame = requestAnimationFrame(updateQuestionBubble);
             }
 
-            updateLabels();
+            updateQuestionBubble();
         }
 
         function loadQuestion() {
@@ -535,20 +474,18 @@
 
             document.getElementById('question-text').textContent = currentQuestion.q;
 
-            // Update answer labels
+            // Update 3D answer text labels
             currentQuestion.answers.forEach((answer, i) => {
-                const label = document.getElementById('label-' + i);
-                if (label) {
-                    label.querySelector('.label-content').textContent = answer;
+                const textEl = document.getElementById('answer-text-' + i);
+                if (textEl) {
+                    textEl.setAttribute('value', answer);
                 }
             });
 
             // Show/hide 3rd answer based on mode
             const answer2 = document.getElementById('answer-2');
-            const label2 = document.getElementById('label-2');
             if (currentMode === 'quiz') {
                 answer2.setAttribute('visible', 'false');
-                label2.classList.remove('visible');
             } else {
                 answer2.setAttribute('visible', 'true');
             }

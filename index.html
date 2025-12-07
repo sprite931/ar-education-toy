@@ -309,78 +309,99 @@
         }
 
         function setupTouchInteraction() {
-            // Wait for scene
             const scene = document.getElementById('arScene');
 
+            // Wait for scene and add cursor component
             scene.addEventListener('loaded', () => {
-                // Add click handler to each answer
-                document.querySelectorAll('.clickable').forEach(el => {
-                    el.setAttribute('clickhandler', '');
-                });
-            });
+                console.log('Scene loaded');
 
-            // Touch raycasting
-            document.addEventListener('touchend', (e) => {
-                if (isProcessing || !markerVisible) return;
-
-                const touch = e.changedTouches[0];
-                const x = touch.clientX;
-                const y = touch.clientY;
-
-                // Use A-Frame's raycaster
-                const scene = document.getElementById('arScene');
-                const camera = scene.querySelector('[camera]');
-
-                if (!camera || !camera.components.raycaster) {
-                    // Manual raycast
-                    doRaycast(x, y);
+                // Try multiple approaches
+                const canvas = scene.canvas;
+                if (canvas) {
+                    canvas.addEventListener('touchstart', handleCanvasTouch, { passive: false });
+                    canvas.addEventListener('click', handleCanvasClick);
+                    console.log('Canvas listeners added');
                 }
             });
+
+            // Global touch handler as backup
+            document.body.addEventListener('touchstart', (e) => {
+                if (isProcessing || !markerVisible) return;
+
+                const touch = e.touches[0];
+                checkTouchOnCards(touch.clientX, touch.clientY);
+            }, { passive: true });
         }
 
-        function doRaycast(x, y) {
-            const scene = document.getElementById('arScene');
-            const canvas = scene.canvas;
-            if (!canvas) return;
+        function handleCanvasTouch(e) {
+            if (isProcessing || !markerVisible) return;
 
+            const touch = e.touches[0];
+            console.log('Canvas touch at:', touch.clientX, touch.clientY);
+            checkTouchOnCards(touch.clientX, touch.clientY);
+        }
+
+        function handleCanvasClick(e) {
+            if (isProcessing || !markerVisible) return;
+
+            console.log('Canvas click at:', e.clientX, e.clientY);
+            checkTouchOnCards(e.clientX, e.clientY);
+        }
+
+        function checkTouchOnCards(touchX, touchY) {
+            // Get screen positions of each answer card
+            const cards = [
+                document.getElementById('answer-0'),
+                document.getElementById('answer-1'),
+                document.getElementById('answer-2')
+            ];
+
+            const scene = document.getElementById('arScene');
             const camera = document.querySelector('[camera]');
             if (!camera) return;
-
-            const rect = canvas.getBoundingClientRect();
-            const mouse = new THREE.Vector2(
-                ((x - rect.left) / rect.width) * 2 - 1,
-                -((y - rect.top) / rect.height) * 2 + 1
-            );
 
             const threeCamera = camera.getObject3D('camera');
             if (!threeCamera) return;
 
+            const canvas = scene.canvas;
+            const rect = canvas.getBoundingClientRect();
+
+            // Convert touch to normalized device coordinates
+            const mouse = new THREE.Vector2(
+                ((touchX - rect.left) / rect.width) * 2 - 1,
+                -((touchY - rect.top) / rect.height) * 2 + 1
+            );
+
             const raycaster = new THREE.Raycaster();
             raycaster.setFromCamera(mouse, threeCamera);
 
-            const clickables = document.querySelectorAll('.clickable');
-            const objects = [];
+            // Collect all meshes
+            const meshesToTest = [];
+            cards.forEach((card, index) => {
+                if (!card || card.getAttribute('visible') === 'false') return;
 
-            clickables.forEach(el => {
-                const mesh = el.getObject3D('mesh');
+                const mesh = card.getObject3D('mesh');
                 if (mesh) {
-                    mesh.userData.element = el;
-                    objects.push(mesh);
+                    mesh.userData.answerIndex = index;
+                    meshesToTest.push(mesh);
                 }
             });
 
-            const intersects = raycaster.intersectObjects(objects, true);
+            // Test intersection
+            const intersects = raycaster.intersectObjects(meshesToTest, true);
+
+            console.log('Raycaster found', intersects.length, 'intersections');
 
             if (intersects.length > 0) {
-                let obj = intersects[0].object;
-                while (obj && !obj.userData.element) {
-                    obj = obj.parent;
-                }
-                if (obj && obj.userData.element) {
-                    const answer = parseInt(obj.userData.element.getAttribute('data-answer'));
-                    if (!isNaN(answer)) {
-                        handleAnswerClick(answer);
+                // Find the answer index
+                let hitObject = intersects[0].object;
+                while (hitObject) {
+                    if (hitObject.userData && hitObject.userData.answerIndex !== undefined) {
+                        console.log('Hit answer:', hitObject.userData.answerIndex);
+                        handleAnswerClick(hitObject.userData.answerIndex);
+                        return;
                     }
+                    hitObject = hitObject.parent;
                 }
             }
         }

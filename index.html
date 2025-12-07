@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AR Мече - Образователна Играчка</title>
 
-    <!-- Three.js - must be r147 for MindAR compatibility -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+    <!-- Three.js -->
+    <script src="https://unpkg.com/three@0.147.0/build/three.min.js"></script>
 
-    <!-- MindAR Image Tracking -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-three.prod.js"></script>
+    <!-- MindAR -->
+    <script src="https://unpkg.com/mind-ar@1.2.2/dist/mindar-image-three.prod.js"></script>
 
     <!-- Troika Text -->
-    <script src="https://cdn.jsdelivr.net/npm/troika-three-text@0.47.2/dist/troika-three-text.umd.min.js"></script>
+    <script src="https://unpkg.com/troika-three-text@0.47.2/dist/troika-three-text.umd.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -347,6 +347,12 @@
             splash.classList.add('loading-state');
 
             try {
+                // Check if MindAR loaded
+                console.log('MINDAR object:', window.MINDAR);
+                if (!window.MINDAR || !window.MINDAR.IMAGE) {
+                    throw new Error('MindAR библиотеката не се зареди. Опитайте да презаредите страницата.');
+                }
+
                 // First request camera permission explicitly
                 console.log('Requesting camera permission...');
                 const stream = await navigator.mediaDevices.getUserMedia({

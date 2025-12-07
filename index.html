@@ -203,25 +203,25 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;">
 
         <a-marker preset="hiro" id="mainMarker">
-            <!-- Answer cards as planes with better touch targets -->
-            <a-entity id="answer-0" class="clickable" position="-0.45 0.25 0"
-                geometry="primitive: plane; width: 0.35; height: 0.35;"
-                material="color: #22c55e; shader: flat; side: double;"
-                animation="property: position; to: -0.45 0.35 0; dir: alternate; loop: true; dur: 1500; easing: easeInOutSine;"
+            <!-- Answer cards - rotated to face camera (rotation 90 on X makes them vertical) -->
+            <a-entity id="answer-0" class="clickable" position="-0.4 0.3 0.3" rotation="0 0 0"
+                geometry="primitive: box; width: 0.3; height: 0.3; depth: 0.05;"
+                material="color: #22c55e; shader: flat;"
+                animation="property: position; to: -0.4 0.4 0.3; dir: alternate; loop: true; dur: 1500; easing: easeInOutSine;"
                 data-answer="0">
             </a-entity>
 
-            <a-entity id="answer-1" class="clickable" position="0 0.3 0"
-                geometry="primitive: plane; width: 0.35; height: 0.35;"
-                material="color: #ef4444; shader: flat; side: double;"
-                animation="property: position; to: 0 0.4 0; dir: alternate; loop: true; dur: 1700; easing: easeInOutSine;"
+            <a-entity id="answer-1" class="clickable" position="0 0.35 0.3" rotation="0 0 0"
+                geometry="primitive: box; width: 0.3; height: 0.3; depth: 0.05;"
+                material="color: #ef4444; shader: flat;"
+                animation="property: position; to: 0 0.45 0.3; dir: alternate; loop: true; dur: 1700; easing: easeInOutSine;"
                 data-answer="1">
             </a-entity>
 
-            <a-entity id="answer-2" class="clickable" position="0.45 0.25 0"
-                geometry="primitive: plane; width: 0.35; height: 0.35;"
-                material="color: #3b82f6; shader: flat; side: double;"
-                animation="property: position; to: 0.45 0.35 0; dir: alternate; loop: true; dur: 1900; easing: easeInOutSine;"
+            <a-entity id="answer-2" class="clickable" position="0.4 0.3 0.3" rotation="0 0 0"
+                geometry="primitive: box; width: 0.3; height: 0.3; depth: 0.05;"
+                material="color: #3b82f6; shader: flat;"
+                animation="property: position; to: 0.4 0.4 0.3; dir: alternate; loop: true; dur: 1900; easing: easeInOutSine;"
                 data-answer="2">
             </a-entity>
 

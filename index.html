@@ -126,13 +126,15 @@
         #marker-hint.hidden { display: none; }
         #marker-hint .icon { font-size: 2.5em; margin-bottom: 15px; display: block; }
 
-        /* Question bubble - follows marker position */
+        /* Question bubble - fixed at top of screen */
         #question-bubble {
             position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 100;
             pointer-events: none;
             display: none;
-            transition: left 0.1s ease-out, top 0.1s ease-out;
         }
         #question-bubble.visible { display: block; }
         #question-bubble .bubble {
@@ -329,7 +331,6 @@
             setupMarkerEvents();
             setupTouchInteraction();
             loadQuestion();
-            startLabelTracking();
         }
 
         function setupModeButtons() {
@@ -435,45 +436,7 @@
             }
         }
 
-        function startLabelTracking() {
-            const scene = document.getElementById('arScene');
-            const marker = document.getElementById('mainMarker');
-
-            function updateQuestionBubble() {
-                if (!markerVisible || !scene.camera) {
-                    animationFrame = requestAnimationFrame(updateQuestionBubble);
-                    return;
-                }
-
-                const canvas = scene.canvas;
-                if (!canvas) {
-                    animationFrame = requestAnimationFrame(updateQuestionBubble);
-                    return;
-                }
-
-                const rect = canvas.getBoundingClientRect();
-                const threeCamera = scene.camera;
-
-                // Update question bubble - follows marker center (stable, no bobbing)
-                const markerPos = new THREE.Vector3(0, 0.8, 0);
-                marker.object3D.localToWorld(markerPos);
-                const bubbleScreen = markerPos.clone().project(threeCamera);
-
-                if (bubbleScreen.z < 1) {
-                    const bubbleX = (bubbleScreen.x * 0.5 + 0.5) * rect.width + rect.left;
-                    const bubbleY = (-bubbleScreen.y * 0.5 + 0.5) * rect.height + rect.top;
-
-                    const bubble = document.getElementById('question-bubble');
-                    bubble.style.left = bubbleX + 'px';
-                    bubble.style.top = bubbleY + 'px';
-                    bubble.style.transform = 'translate(-50%, -100%)';
-                }
-
-                animationFrame = requestAnimationFrame(updateQuestionBubble);
-            }
-
-            updateQuestionBubble();
-        }
+        // Question bubble is now fixed via CSS - no tracking needed
 
         function loadQuestion() {
             const questionList = questions[currentMode];

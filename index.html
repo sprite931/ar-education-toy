@@ -319,6 +319,7 @@
         let animationFrame = null;
         let firebaseQuestions = { math: [], alphabet: [], quiz: [] };
         let useFirebase = false;
+        let globalSettings = { correctSoundUrl: '', wrongSoundUrl: '' };
 
         // Fallback questions (used if Firebase is empty or fails)
         const defaultQuestions = {
@@ -341,9 +342,27 @@
             ]
         };
 
+        // Load global settings from Firebase
+        async function loadGlobalSettings() {
+            try {
+                const doc = await db.collection('settings').doc('global').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    globalSettings.correctSoundUrl = data.correctSoundUrl || '';
+                    globalSettings.wrongSoundUrl = data.wrongSoundUrl || '';
+                    console.log('Loaded global settings');
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
         // Load questions from Firebase
         async function loadFirebaseQuestions() {
             try {
+                // Load settings in parallel
+                await loadGlobalSettings();
+
                 const snapshot = await db.collection('questions').get();
                 if (snapshot.empty) {
                     console.log('No Firebase questions, using defaults');
@@ -513,10 +532,10 @@
         // Question bubble is now fixed via CSS - no tracking needed
 
         // Default answer positions and animations
-        const defaultPositions = [
-            { pos: '-0.6 0.3 0', to: '-0.55 0.45 0.1', dur: 2000, rot: '0 0 0' },
-            { pos: '0 0.35 0.3', to: '0.05 0.5 0.25', dur: 2500, rot: '0 45 0' },
-            { pos: '0.6 0.3 0', to: '0.65 0.45 -0.1', dur: 1800, rot: '0 -45 0' }
+        const defaultAnswerConfigs = [
+            { posX: -0.6, posY: 0.3, posZ: 0, moveRange: 0.15, speed: 2000, rotation: 0, scale: 0.02 },
+            { posX: 0, posY: 0.35, posZ: 0.3, moveRange: 0.15, speed: 2500, rotation: 45, scale: 0.02 },
+            { posX: 0.6, posY: 0.3, posZ: 0, moveRange: 0.15, speed: 1800, rotation: -45, scale: 0.02 }
         ];
 
         function loadQuestion() {
@@ -541,37 +560,61 @@
                     textEl.setAttribute('troika-text', 'value', answer);
                 }
 
-                // Apply custom model settings from Firebase if available
+                // Get config from Firebase or use defaults
+                const defaults = defaultAnswerConfigs[i];
+                let config = { ...defaults };
+
                 if (currentQuestion.answerData && currentQuestion.answerData[i]) {
                     const answerConfig = currentQuestion.answerData[i];
+                    config.posX = answerConfig.posX !== undefined ? answerConfig.posX : defaults.posX;
+                    config.posY = answerConfig.posY !== undefined ? answerConfig.posY : defaults.posY;
+                    config.posZ = answerConfig.posZ !== undefined ? answerConfig.posZ : defaults.posZ;
+                    config.moveRange = answerConfig.moveRange !== undefined ? answerConfig.moveRange : defaults.moveRange;
+                    config.speed = answerConfig.speed || defaults.speed;
+                    config.rotation = answerConfig.rotation !== undefined ? answerConfig.rotation : defaults.rotation;
+                    config.scale = answerConfig.scale || defaults.scale;
+                    config.modelUrl = answerConfig.modelUrl || null;
+                }
 
-                    // Update model if custom URL provided
-                    if (modelEntity && answerConfig.modelUrl) {
-                        modelEntity.setAttribute('gltf-model', answerConfig.modelUrl);
-                    }
+                // Apply position
+                if (answerEntity) {
+                    answerEntity.setAttribute('position', `${config.posX} ${config.posY} ${config.posZ}`);
+                }
 
-                    // Update scale
-                    if (modelEntity && answerConfig.scale) {
-                        const s = answerConfig.scale;
-                        modelEntity.setAttribute('scale', `${s} ${s} ${s}`);
-                    }
+                // Update model if custom URL provided
+                if (modelEntity && config.modelUrl) {
+                    modelEntity.setAttribute('gltf-model', config.modelUrl);
+                }
 
-                    // Update rotation
-                    if (modelEntity && answerConfig.rotation !== undefined) {
-                        modelEntity.setAttribute('rotation', `0 ${answerConfig.rotation} 0`);
-                    }
+                // Update scale
+                if (modelEntity) {
+                    const s = config.scale;
+                    modelEntity.setAttribute('scale', `${s} ${s} ${s}`);
+                }
 
-                    // Update animation speed
-                    if (answerEntity && answerConfig.speed) {
-                        const defaults = defaultPositions[i];
+                // Update rotation
+                if (modelEntity) {
+                    modelEntity.setAttribute('rotation', `0 ${config.rotation} 0`);
+                }
+
+                // Update animation with position and moveRange
+                if (answerEntity) {
+                    const toX = config.posX + (config.moveRange * 0.3);
+                    const toY = config.posY + config.moveRange;
+                    const toZ = config.posZ + (config.moveRange * 0.5);
+
+                    if (config.moveRange > 0) {
                         answerEntity.setAttribute('animation__move', {
                             property: 'position',
-                            to: defaults.to,
+                            to: `${toX} ${toY} ${toZ}`,
                             dir: 'alternate',
                             loop: true,
-                            dur: answerConfig.speed,
+                            dur: config.speed,
                             easing: 'easeInOutSine'
                         });
+                    } else {
+                        // Remove animation if moveRange is 0
+                        answerEntity.removeAttribute('animation__move');
                     }
                 }
             });
@@ -613,6 +656,13 @@
             feedback.querySelector('.text').textContent = isCorrect ? 'Браво!' : 'Опитай пак!';
             feedback.className = isCorrect ? 'show correct' : 'show wrong';
             setTimeout(() => { feedback.className = ''; }, 1200);
+
+            // Play feedback sound
+            const soundUrl = isCorrect ? globalSettings.correctSoundUrl : globalSettings.wrongSoundUrl;
+            if (soundUrl) {
+                const audio = new Audio(soundUrl);
+                audio.play().catch(e => console.log('Feedback sound failed:', e));
+            }
         }
     </script>
 </body>

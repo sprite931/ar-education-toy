@@ -296,6 +296,7 @@
             <button class="tab active" data-tab="questions">📝 Въпроси</button>
             <button class="tab" data-tab="models">🦋 3D Модели</button>
             <button class="tab" data-tab="sounds">🔊 Звуци</button>
+            <button class="tab" data-tab="settings">⚙️ Настройки</button>
         </div>
 
         <!-- Questions Tab -->
@@ -345,18 +346,36 @@
                                     </select>
                                 </div>
 
-                                <div class="model-settings">
+                                <div class="model-settings" style="grid-template-columns: repeat(3, 1fr);">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Позиция X</label>
+                                        <input type="number" class="pos-x" value="-0.6" step="0.1" min="-2" max="2">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Позиция Y</label>
+                                        <input type="number" class="pos-y" value="0.3" step="0.1" min="0" max="2">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Позиция Z</label>
+                                        <input type="number" class="pos-z" value="0" step="0.1" min="-2" max="2">
+                                    </div>
+                                </div>
+                                <div class="model-settings" style="grid-template-columns: repeat(4, 1fr); margin-top: 8px;">
                                     <div class="form-group" style="margin: 0;">
                                         <label>Размер</label>
                                         <input type="number" class="model-scale" value="0.02" step="0.01" min="0.01" max="1">
                                     </div>
                                     <div class="form-group" style="margin: 0;">
-                                        <label>Скорост</label>
-                                        <input type="number" class="model-speed" value="2000" step="100" min="500" max="5000">
+                                        <label>Ротация Y</label>
+                                        <input type="number" class="model-rotation" value="0" step="15" min="-180" max="180">
                                     </div>
                                     <div class="form-group" style="margin: 0;">
-                                        <label>Ротация</label>
-                                        <input type="number" class="model-rotation" value="0" step="15" min="-180" max="180">
+                                        <label>Движение</label>
+                                        <input type="number" class="move-range" value="0.15" step="0.05" min="0" max="1">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Скорост</label>
+                                        <input type="number" class="model-speed" value="2000" step="100" min="500" max="5000">
                                     </div>
                                 </div>
                             </div>
@@ -379,18 +398,36 @@
                                     </select>
                                 </div>
 
-                                <div class="model-settings">
+                                <div class="model-settings" style="grid-template-columns: repeat(3, 1fr);">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Позиция X</label>
+                                        <input type="number" class="pos-x" value="0" step="0.1" min="-2" max="2">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Позиция Y</label>
+                                        <input type="number" class="pos-y" value="0.35" step="0.1" min="0" max="2">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Позиция Z</label>
+                                        <input type="number" class="pos-z" value="0.3" step="0.1" min="-2" max="2">
+                                    </div>
+                                </div>
+                                <div class="model-settings" style="grid-template-columns: repeat(4, 1fr); margin-top: 8px;">
                                     <div class="form-group" style="margin: 0;">
                                         <label>Размер</label>
                                         <input type="number" class="model-scale" value="0.02" step="0.01" min="0.01" max="1">
                                     </div>
                                     <div class="form-group" style="margin: 0;">
-                                        <label>Скорост</label>
-                                        <input type="number" class="model-speed" value="2500" step="100" min="500" max="5000">
+                                        <label>Ротация Y</label>
+                                        <input type="number" class="model-rotation" value="45" step="15" min="-180" max="180">
                                     </div>
                                     <div class="form-group" style="margin: 0;">
-                                        <label>Ротация</label>
-                                        <input type="number" class="model-rotation" value="45" step="15" min="-180" max="180">
+                                        <label>Движение</label>
+                                        <input type="number" class="move-range" value="0.15" step="0.05" min="0" max="1">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Скорост</label>
+                                        <input type="number" class="model-speed" value="2500" step="100" min="500" max="5000">
                                     </div>
                                 </div>
                             </div>
@@ -413,18 +450,36 @@
                                     </select>
                                 </div>
 
-                                <div class="model-settings">
+                                <div class="model-settings" style="grid-template-columns: repeat(3, 1fr);">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Позиция X</label>
+                                        <input type="number" class="pos-x" value="0.6" step="0.1" min="-2" max="2">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Позиция Y</label>
+                                        <input type="number" class="pos-y" value="0.3" step="0.1" min="0" max="2">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Позиция Z</label>
+                                        <input type="number" class="pos-z" value="0" step="0.1" min="-2" max="2">
+                                    </div>
+                                </div>
+                                <div class="model-settings" style="grid-template-columns: repeat(4, 1fr); margin-top: 8px;">
                                     <div class="form-group" style="margin: 0;">
                                         <label>Размер</label>
                                         <input type="number" class="model-scale" value="0.02" step="0.01" min="0.01" max="1">
                                     </div>
                                     <div class="form-group" style="margin: 0;">
-                                        <label>Скорост</label>
-                                        <input type="number" class="model-speed" value="1800" step="100" min="500" max="5000">
+                                        <label>Ротация Y</label>
+                                        <input type="number" class="model-rotation" value="-45" step="15" min="-180" max="180">
                                     </div>
                                     <div class="form-group" style="margin: 0;">
-                                        <label>Ротация</label>
-                                        <input type="number" class="model-rotation" value="-45" step="15" min="-180" max="180">
+                                        <label>Движение</label>
+                                        <input type="number" class="move-range" value="0.15" step="0.05" min="0" max="1">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Скорост</label>
+                                        <input type="number" class="model-speed" value="1800" step="100" min="500" max="5000">
                                     </div>
                                 </div>
                             </div>
@@ -484,6 +539,48 @@
                 </div>
             </div>
         </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="hidden">
+            <div class="section">
+                <h2>🔊 Глобални звуци</h2>
+                <p style="color: #94a3b8; margin-bottom: 20px;">Тези звуци се изпълняват при правилен/грешен отговор за всички въпроси.</p>
+
+                <div class="form-group">
+                    <label>Звук при ПРАВИЛЕН отговор</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="correct-sound" style="flex: 1;">
+                            <option value="">-- Без звук --</option>
+                        </select>
+                        <button type="button" class="btn secondary" onclick="previewSound('correct-sound')">▶️</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Звук при ГРЕШЕН отговор</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="wrong-sound" style="flex: 1;">
+                            <option value="">-- Без звук --</option>
+                        </select>
+                        <button type="button" class="btn secondary" onclick="previewSound('wrong-sound')">▶️</button>
+                    </div>
+                </div>
+
+                <button type="button" class="btn" onclick="saveSettings()">💾 Запази настройки</button>
+            </div>
+
+            <div class="section">
+                <h2>ℹ️ Информация</h2>
+                <p style="color: #94a3b8; line-height: 1.8;">
+                    <strong>Позиция X:</strong> Ляво (-) / Дясно (+)<br>
+                    <strong>Позиция Y:</strong> Височина над маркера<br>
+                    <strong>Позиция Z:</strong> Напред (-) / Назад (+)<br>
+                    <strong>Движение:</strong> Колко далеч се движи обекта (0 = статичен)<br>
+                    <strong>Скорост:</strong> Време за един цикъл в ms (по-малко = по-бързо)<br>
+                    <strong>Ротация Y:</strong> Завъртане на модела в градуси
+                </p>
+            </div>
+        </div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -525,6 +622,7 @@
                 document.getElementById('questions-tab').classList.add('hidden');
                 document.getElementById('models-tab').classList.add('hidden');
                 document.getElementById('sounds-tab').classList.add('hidden');
+                document.getElementById('settings-tab').classList.add('hidden');
                 document.getElementById(tab.dataset.tab + '-tab').classList.remove('hidden');
             });
         });
@@ -539,8 +637,75 @@
 
         // Load all data
         async function loadData() {
-            await Promise.all([loadModels(), loadSounds(), loadQuestions()]);
+            await Promise.all([loadModels(), loadSounds(), loadQuestions(), loadSettings()]);
         }
+
+        // Load Settings
+        async function loadSettings() {
+            try {
+                const doc = await db.collection('settings').doc('global').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    // Wait for sounds to load first
+                    setTimeout(() => {
+                        if (data.correctSoundId) {
+                            document.getElementById('correct-sound').value = data.correctSoundId;
+                        }
+                        if (data.wrongSoundId) {
+                            document.getElementById('wrong-sound').value = data.wrongSoundId;
+                        }
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Save Settings
+        window.saveSettings = async function() {
+            try {
+                const correctSoundId = document.getElementById('correct-sound').value;
+                const wrongSoundId = document.getElementById('wrong-sound').value;
+
+                let correctSoundUrl = '';
+                let wrongSoundUrl = '';
+
+                if (correctSoundId) {
+                    const sound = sounds.find(s => s.id === correctSoundId);
+                    if (sound) correctSoundUrl = sound.url;
+                }
+                if (wrongSoundId) {
+                    const sound = sounds.find(s => s.id === wrongSoundId);
+                    if (sound) wrongSoundUrl = sound.url;
+                }
+
+                await db.collection('settings').doc('global').set({
+                    correctSoundId,
+                    correctSoundUrl,
+                    wrongSoundId,
+                    wrongSoundUrl,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showToast('Настройките са запазени!');
+            } catch (error) {
+                console.error('Save settings error:', error);
+                showToast('Грешка при запазване', true);
+            }
+        };
+
+        // Preview sound from select
+        window.previewSound = function(selectId) {
+            const select = document.getElementById(selectId);
+            const soundId = select.value;
+            if (!soundId) return;
+
+            const sound = sounds.find(s => s.id === soundId);
+            if (sound) {
+                const audio = new Audio(sound.url);
+                audio.play();
+            }
+        };
 
         // Load 3D Models
         async function loadModels() {
@@ -656,6 +821,8 @@
             const options = '<option value="">-- Без звук --</option>' +
                 sounds.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
             document.getElementById('q-sound').innerHTML = options;
+            document.getElementById('correct-sound').innerHTML = options;
+            document.getElementById('wrong-sound').innerHTML = options;
         }
 
         // Upload Model
@@ -822,6 +989,10 @@
                     const scale = parseFloat(item.querySelector('.model-scale').value);
                     const speed = parseInt(item.querySelector('.model-speed').value);
                     const rotation = parseInt(item.querySelector('.model-rotation').value);
+                    const posX = parseFloat(item.querySelector('.pos-x').value);
+                    const posY = parseFloat(item.querySelector('.pos-y').value);
+                    const posZ = parseFloat(item.querySelector('.pos-z').value);
+                    const moveRange = parseFloat(item.querySelector('.move-range').value);
 
                     // Get model URL if selected
                     let modelUrl = '';
@@ -836,7 +1007,11 @@
                         modelUrl: modelUrl,
                         scale: scale,
                         speed: speed,
-                        rotation: rotation
+                        rotation: rotation,
+                        posX: posX,
+                        posY: posY,
+                        posZ: posZ,
+                        moveRange: moveRange
                     });
                 });
 
@@ -893,6 +1068,12 @@
             document.getElementById('q-text').value = q.text;
             document.getElementById('q-sound').value = q.soundId || '';
 
+            const defaultPositions = [
+                { x: -0.6, y: 0.3, z: 0 },
+                { x: 0, y: 0.35, z: 0.3 },
+                { x: 0.6, y: 0.3, z: 0 }
+            ];
+
             q.answers.forEach((answer, index) => {
                 const item = document.querySelector(`.answer-item[data-index="${index}"]`);
                 if (item) {
@@ -901,6 +1082,10 @@
                     item.querySelector('.model-scale').value = answer.scale || 0.02;
                     item.querySelector('.model-speed').value = answer.speed || 2000;
                     item.querySelector('.model-rotation').value = answer.rotation || 0;
+                    item.querySelector('.pos-x').value = answer.posX !== undefined ? answer.posX : defaultPositions[index].x;
+                    item.querySelector('.pos-y').value = answer.posY !== undefined ? answer.posY : defaultPositions[index].y;
+                    item.querySelector('.pos-z').value = answer.posZ !== undefined ? answer.posZ : defaultPositions[index].z;
+                    item.querySelector('.move-range').value = answer.moveRange !== undefined ? answer.moveRange : 0.15;
                 }
             });
 

@@ -357,62 +357,56 @@
 
             const canvas = scene.canvas;
             const rect = canvas.getBoundingClientRect();
-
-            // Normalized device coordinates
-            const mouse = new THREE.Vector2(
-                ((touchX - rect.left) / rect.width) * 2 - 1,
-                -((touchY - rect.top) / rect.height) * 2 + 1
-            );
-
-            console.log('Touch NDC:', mouse.x.toFixed(2), mouse.y.toFixed(2));
-
-            // Use scene's camera directly
             const threeCamera = scene.camera;
 
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, threeCamera);
-
-            // Get marker group to find cards in world space
-            const marker = document.getElementById('mainMarker');
-            const markerObject = marker.object3D;
-
-            // Collect all card meshes
+            // Get card elements
             const cards = [
                 document.getElementById('answer-0'),
                 document.getElementById('answer-1'),
                 document.getElementById('answer-2')
             ];
 
-            const meshesToTest = [];
+            // Project each card's world position to screen and check distance to touch
+            let closestCard = -1;
+            let closestDistance = Infinity;
+            const maxDistance = 80; // pixels - tolerance for touch
+
             cards.forEach((card, index) => {
                 if (!card || card.getAttribute('visible') === 'false') return;
 
                 const obj = card.object3D;
-                if (obj) {
-                    // Tag all children with answer index
-                    obj.traverse((child) => {
-                        child.userData.answerIndex = index;
-                    });
-                    meshesToTest.push(obj);
+                if (!obj) return;
+
+                // Get world position
+                const worldPos = new THREE.Vector3();
+                obj.getWorldPosition(worldPos);
+
+                // Project to screen coordinates
+                const screenPos = worldPos.clone().project(threeCamera);
+
+                // Convert to pixel coordinates
+                const screenX = (screenPos.x * 0.5 + 0.5) * rect.width + rect.left;
+                const screenY = (-screenPos.y * 0.5 + 0.5) * rect.height + rect.top;
+
+                // Calculate distance from touch to card center
+                const distance = Math.sqrt(
+                    Math.pow(touchX - screenX, 2) +
+                    Math.pow(touchY - screenY, 2)
+                );
+
+                console.log(`Card ${index}: screen(${screenX.toFixed(0)}, ${screenY.toFixed(0)}) dist=${distance.toFixed(0)}`);
+
+                if (distance < closestDistance && distance < maxDistance) {
+                    closestDistance = distance;
+                    closestCard = index;
                 }
             });
 
-            // Raycast against all objects
-            const intersects = raycaster.intersectObjects(meshesToTest, true);
-
-            console.log('Intersections:', intersects.length);
-
-            if (intersects.length > 0) {
-                let hitObject = intersects[0].object;
-                // Walk up to find answerIndex
-                while (hitObject) {
-                    if (hitObject.userData && hitObject.userData.answerIndex !== undefined) {
-                        console.log('HIT! Answer:', hitObject.userData.answerIndex);
-                        handleAnswerClick(hitObject.userData.answerIndex);
-                        return;
-                    }
-                    hitObject = hitObject.parent;
-                }
+            if (closestCard >= 0) {
+                console.log('HIT! Card:', closestCard, 'distance:', closestDistance.toFixed(0));
+                handleAnswerClick(closestCard);
+            } else {
+                console.log('No card hit. Touch at:', touchX.toFixed(0), touchY.toFixed(0));
             }
         }
 

@@ -203,27 +203,27 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;">
 
         <a-marker preset="hiro" id="mainMarker">
-            <!-- Answer cards - rotated to face camera (rotation 90 on X makes them vertical) -->
-            <a-entity id="answer-0" class="clickable" position="-0.4 0.3 0.3" rotation="0 0 0"
-                geometry="primitive: box; width: 0.3; height: 0.3; depth: 0.05;"
-                material="color: #22c55e; shader: flat;"
-                animation="property: position; to: -0.4 0.4 0.3; dir: alternate; loop: true; dur: 1500; easing: easeInOutSine;"
+            <!-- Answer cards - big boxes for easy touch -->
+            <a-box id="answer-0" class="clickable" position="-0.45 0.25 0"
+                width="0.35" height="0.35" depth="0.35"
+                color="#22c55e"
+                animation="property: position; to: -0.45 0.35 0; dir: alternate; loop: true; dur: 1500; easing: easeInOutSine;"
                 data-answer="0">
-            </a-entity>
+            </a-box>
 
-            <a-entity id="answer-1" class="clickable" position="0 0.35 0.3" rotation="0 0 0"
-                geometry="primitive: box; width: 0.3; height: 0.3; depth: 0.05;"
-                material="color: #ef4444; shader: flat;"
-                animation="property: position; to: 0 0.45 0.3; dir: alternate; loop: true; dur: 1700; easing: easeInOutSine;"
+            <a-box id="answer-1" class="clickable" position="0 0.3 0"
+                width="0.35" height="0.35" depth="0.35"
+                color="#ef4444"
+                animation="property: position; to: 0 0.4 0; dir: alternate; loop: true; dur: 1700; easing: easeInOutSine;"
                 data-answer="1">
-            </a-entity>
+            </a-box>
 
-            <a-entity id="answer-2" class="clickable" position="0.4 0.3 0.3" rotation="0 0 0"
-                geometry="primitive: box; width: 0.3; height: 0.3; depth: 0.05;"
-                material="color: #3b82f6; shader: flat;"
-                animation="property: position; to: 0.4 0.4 0.3; dir: alternate; loop: true; dur: 1900; easing: easeInOutSine;"
+            <a-box id="answer-2" class="clickable" position="0.45 0.25 0"
+                width="0.35" height="0.35" depth="0.35"
+                color="#3b82f6"
+                animation="property: position; to: 0.45 0.35 0; dir: alternate; loop: true; dur: 1900; easing: easeInOutSine;"
                 data-answer="2">
-            </a-entity>
+            </a-box>
 
             <!-- Base ring -->
             <a-ring position="0 0.01 0" rotation="-90 0 0" radius-inner="0.25" radius-outer="0.35"

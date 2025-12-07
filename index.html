@@ -347,6 +347,19 @@
             splash.classList.add('loading-state');
 
             try {
+                // First request camera permission explicitly
+                console.log('Requesting camera permission...');
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+                // Stop the test stream
+                stream.getTracks().forEach(track => track.stop());
+                console.log('Camera permission granted');
+
                 await initAR();
                 splash.style.display = 'none';
                 gameUI.classList.add('visible');
@@ -356,7 +369,20 @@
                 setTimeout(() => tapHint.classList.add('hidden'), 5000);
             } catch (error) {
                 console.error('AR init failed:', error);
-                alert('Грешка при стартиране на камерата. Моля, позволете достъп до камерата.');
+                let errorMsg = 'Грешка при стартиране: ';
+
+                if (error.name === 'NotAllowedError') {
+                    errorMsg += 'Камерата не е разрешена. Моля, позволете достъп от настройките на браузъра.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMsg += 'Камера не е намерена.';
+                } else if (error.name === 'NotSupportedError') {
+                    errorMsg += 'Браузърът не поддържа камера. Използвайте Safari.';
+                } else {
+                    errorMsg += error.message || 'Неизвестна грешка';
+                }
+
+                alert(errorMsg);
+                console.error('Full error:', error);
                 splash.classList.remove('loading-state');
             }
         }

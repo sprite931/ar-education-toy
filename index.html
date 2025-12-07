@@ -7,6 +7,16 @@
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
+    <script>
+        // Billboard component - always face camera
+        AFRAME.registerComponent('billboard', {
+            tick: function () {
+                var camera = this.el.sceneEl.camera;
+                if (!camera) return;
+                this.el.object3D.quaternion.copy(camera.quaternion);
+            }
+        });
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -210,70 +220,58 @@
         vr-mode-ui="enabled: false"
         renderer="logarithmicDepthBuffer: true; antialias: true;">
 
+        <!-- Preload 3D model -->
+        <a-assets>
+            <a-asset-item id="butterfly-model" src="assets/models/Butterfly.glb"></a-asset-item>
+        </a-assets>
+
         <a-marker preset="hiro" id="mainMarker">
-            <!-- Butterfly 1 - Green -->
+            <!-- Butterfly 1 - Green tint -->
             <a-entity id="answer-0" class="clickable" position="-0.5 0.4 0" data-answer="0"
                 animation="property: position; to: -0.45 0.5 0.1; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine;">
-                <!-- 3D Text Label - always faces camera -->
-                <a-entity id="text-0" position="0 0.22 0" look-at="[camera]">
+                <!-- 3D Text Label - billboard always faces camera -->
+                <a-entity id="text-0" position="0 0.25 0" billboard>
                     <a-plane width="0.25" height="0.15" color="#22c55e" opacity="0.95"
                         side="double" shader="flat" position="0 0 -0.005"></a-plane>
                     <a-entity id="answer-text-0"
                         troika-text="value: 5; color: white; fontSize: 0.12; maxWidth: 0.2; textAlign: center; anchorX: center; anchorY: middle; outlineWidth: 0.01; outlineColor: #166534"
                         position="0 0 0.01"></a-entity>
                 </a-entity>
-                <!-- Butterfly body -->
-                <a-entity animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear;">
-                    <a-sphere radius="0.08" color="#22c55e" position="0 0 0"></a-sphere>
-                    <a-sphere radius="0.05" color="#16a34a" position="0 0.1 0"></a-sphere>
-                    <a-circle radius="0.12" color="#4ade80" position="0.08 0 0" rotation="0 90 20"
-                        animation="property: rotation; to: 0 90 -20; dir: alternate; loop: true; dur: 300;"></a-circle>
-                    <a-circle radius="0.12" color="#4ade80" position="-0.08 0 0" rotation="0 -90 -20"
-                        animation="property: rotation; to: 0 -90 20; dir: alternate; loop: true; dur: 300;"></a-circle>
-                </a-entity>
+                <!-- 3D Butterfly model -->
+                <a-entity gltf-model="#butterfly-model" scale="0.15 0.15 0.15" position="0 0 0"
+                    animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear;"></a-entity>
             </a-entity>
 
-            <!-- Ladybug - Red -->
+            <!-- Butterfly 2 - Red tint -->
             <a-entity id="answer-1" class="clickable" position="0 0.5 0" data-answer="1"
                 animation="property: position; to: 0.05 0.6 -0.05; dir: alternate; loop: true; dur: 2500; easing: easeInOutSine;">
                 <!-- 3D Text Label -->
-                <a-entity id="text-1" position="0 0.22 0" look-at="[camera]">
+                <a-entity id="text-1" position="0 0.25 0" billboard>
                     <a-plane width="0.25" height="0.15" color="#ef4444" opacity="0.95"
                         side="double" shader="flat" position="0 0 -0.005"></a-plane>
                     <a-entity id="answer-text-1"
                         troika-text="value: 4; color: white; fontSize: 0.12; maxWidth: 0.2; textAlign: center; anchorX: center; anchorY: middle; outlineWidth: 0.01; outlineColor: #991b1b"
                         position="0 0 0.01"></a-entity>
                 </a-entity>
-                <!-- Ladybug body -->
-                <a-entity animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 10000; easing: linear;">
-                    <a-sphere radius="0.1" color="#ef4444" position="0 0 0"></a-sphere>
-                    <a-sphere radius="0.05" color="#1a1a2e" position="0 0 0.1"></a-sphere>
-                    <a-circle radius="0.025" color="#1a1a2e" position="0.05 0.08 0" rotation="-30 0 0"></a-circle>
-                    <a-circle radius="0.025" color="#1a1a2e" position="-0.05 0.08 0" rotation="-30 0 0"></a-circle>
-                    <a-circle radius="0.02" color="#1a1a2e" position="0 0.09 -0.03" rotation="-20 0 0"></a-circle>
-                </a-entity>
+                <!-- 3D Butterfly model -->
+                <a-entity gltf-model="#butterfly-model" scale="0.15 0.15 0.15" position="0 0 0"
+                    animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 10000; easing: linear;"></a-entity>
             </a-entity>
 
-            <!-- Butterfly 2 - Blue -->
+            <!-- Butterfly 3 - Blue tint -->
             <a-entity id="answer-2" class="clickable" position="0.5 0.4 0" data-answer="2"
                 animation="property: position; to: 0.55 0.5 -0.1; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine;">
                 <!-- 3D Text Label -->
-                <a-entity id="text-2" position="0 0.22 0" look-at="[camera]">
+                <a-entity id="text-2" position="0 0.25 0" billboard>
                     <a-plane width="0.25" height="0.15" color="#3b82f6" opacity="0.95"
                         side="double" shader="flat" position="0 0 -0.005"></a-plane>
                     <a-entity id="answer-text-2"
                         troika-text="value: 6; color: white; fontSize: 0.12; maxWidth: 0.2; textAlign: center; anchorX: center; anchorY: middle; outlineWidth: 0.01; outlineColor: #1e40af"
                         position="0 0 0.01"></a-entity>
                 </a-entity>
-                <!-- Butterfly body -->
-                <a-entity animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 7000; easing: linear;">
-                    <a-sphere radius="0.08" color="#3b82f6" position="0 0 0"></a-sphere>
-                    <a-sphere radius="0.05" color="#2563eb" position="0 0.1 0"></a-sphere>
-                    <a-circle radius="0.12" color="#60a5fa" position="0.08 0 0" rotation="0 90 20"
-                        animation="property: rotation; to: 0 90 -20; dir: alternate; loop: true; dur: 350;"></a-circle>
-                    <a-circle radius="0.12" color="#60a5fa" position="-0.08 0 0" rotation="0 -90 -20"
-                        animation="property: rotation; to: 0 -90 20; dir: alternate; loop: true; dur: 350;"></a-circle>
-                </a-entity>
+                <!-- 3D Butterfly model -->
+                <a-entity gltf-model="#butterfly-model" scale="0.15 0.15 0.15" position="0 0 0"
+                    animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 7000; easing: linear;"></a-entity>
             </a-entity>
 
             <!-- Flowers on ground -->

@@ -8,12 +8,20 @@
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
     <script>
-        // Billboard component - always face camera
+        // Billboard component - always face camera (Y-axis only for upright text)
         AFRAME.registerComponent('billboard', {
+            init: function() {
+                this.vector = new THREE.Vector3();
+            },
             tick: function () {
                 var camera = this.el.sceneEl.camera;
                 if (!camera) return;
-                this.el.object3D.quaternion.copy(camera.quaternion);
+
+                // Get camera world position
+                camera.getWorldPosition(this.vector);
+
+                // Make element look at camera
+                this.el.object3D.lookAt(this.vector);
             }
         });
     </script>
@@ -228,25 +236,24 @@
         <a-marker preset="hiro" id="mainMarker">
             <!-- Butterfly 1 - Left -->
             <a-entity id="answer-0" class="clickable" position="-0.6 0.3 0" data-answer="0"
-                animation="property: position; to: -0.55 0.4 0.1; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine;">
+                animation__move="property: position; to: -0.55 0.45 0.1; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine;">
                 <!-- 3D Text Label - billboard always faces camera -->
-                <a-entity id="text-0" position="0 0.15 0" billboard>
+                <a-entity id="text-0" position="0 0.18 0" billboard>
                     <a-plane width="0.2" height="0.12" color="#22c55e" opacity="0.95"
                         side="double" shader="flat" position="0 0 -0.005"></a-plane>
                     <a-entity id="answer-text-0"
                         troika-text="value: 5; color: white; fontSize: 0.08; maxWidth: 0.18; textAlign: center; anchorX: center; anchorY: middle; outlineWidth: 0.008; outlineColor: #166534"
                         position="0 0 0.01"></a-entity>
                 </a-entity>
-                <!-- 3D Butterfly model - small scale -->
-                <a-entity gltf-model="#butterfly-model" scale="0.02 0.02 0.02" position="0 0 0" rotation="0 0 0"
-                    animation__float="property: position; to: 0 0.05 0; dir: alternate; loop: true; dur: 1500; easing: easeInOutSine;"></a-entity>
+                <!-- 3D Butterfly model -->
+                <a-entity gltf-model="#butterfly-model" scale="0.02 0.02 0.02" position="0 0 0" rotation="0 0 0"></a-entity>
             </a-entity>
 
             <!-- Butterfly 2 - Center -->
             <a-entity id="answer-1" class="clickable" position="0 0.35 0.3" data-answer="1"
-                animation="property: position; to: 0.05 0.45 0.25; dir: alternate; loop: true; dur: 2500; easing: easeInOutSine;">
+                animation__move="property: position; to: 0.05 0.5 0.25; dir: alternate; loop: true; dur: 2500; easing: easeInOutSine;">
                 <!-- 3D Text Label -->
-                <a-entity id="text-1" position="0 0.15 0" billboard>
+                <a-entity id="text-1" position="0 0.18 0" billboard>
                     <a-plane width="0.2" height="0.12" color="#ef4444" opacity="0.95"
                         side="double" shader="flat" position="0 0 -0.005"></a-plane>
                     <a-entity id="answer-text-1"
@@ -254,15 +261,14 @@
                         position="0 0 0.01"></a-entity>
                 </a-entity>
                 <!-- 3D Butterfly model -->
-                <a-entity gltf-model="#butterfly-model" scale="0.02 0.02 0.02" position="0 0 0" rotation="0 45 0"
-                    animation__float="property: position; to: 0 0.05 0; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine;"></a-entity>
+                <a-entity gltf-model="#butterfly-model" scale="0.02 0.02 0.02" position="0 0 0" rotation="0 45 0"></a-entity>
             </a-entity>
 
             <!-- Butterfly 3 - Right -->
             <a-entity id="answer-2" class="clickable" position="0.6 0.3 0" data-answer="2"
-                animation="property: position; to: 0.65 0.4 -0.1; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine;">
+                animation__move="property: position; to: 0.65 0.45 -0.1; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine;">
                 <!-- 3D Text Label -->
-                <a-entity id="text-2" position="0 0.15 0" billboard>
+                <a-entity id="text-2" position="0 0.18 0" billboard>
                     <a-plane width="0.2" height="0.12" color="#3b82f6" opacity="0.95"
                         side="double" shader="flat" position="0 0 -0.005"></a-plane>
                     <a-entity id="answer-text-2"
@@ -270,8 +276,7 @@
                         position="0 0 0.01"></a-entity>
                 </a-entity>
                 <!-- 3D Butterfly model -->
-                <a-entity gltf-model="#butterfly-model" scale="0.02 0.02 0.02" position="0 0 0" rotation="0 -45 0"
-                    animation__float="property: position; to: 0 0.05 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine;"></a-entity>
+                <a-entity gltf-model="#butterfly-model" scale="0.02 0.02 0.02" position="0 0 0" rotation="0 -45 0"></a-entity>
             </a-entity>
 
             <!-- Flowers on ground -->

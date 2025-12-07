@@ -58,21 +58,6 @@
         #score-panel .star { font-size: 1.3em; }
         #score-panel .score-value { font-size: 1.6em; font-weight: 700; color: #4ade80; }
 
-        #question-panel {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 14px 28px;
-            border-radius: 22px;
-            font-size: 1.4em;
-            font-weight: 700;
-            color: #1a1a2e;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-
         #mode-selector {
             position: fixed;
             bottom: 30px;
@@ -122,6 +107,59 @@
         #marker-hint.hidden { display: none; }
         #marker-hint .icon { font-size: 2.5em; margin-bottom: 15px; display: block; }
 
+        /* Question bubble - follows marker */
+        #question-bubble {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+        }
+        #question-bubble.visible { display: block; }
+        #question-bubble .bubble {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1a1a2e;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            white-space: nowrap;
+            position: relative;
+        }
+        #question-bubble .bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 12px solid white;
+        }
+
+        /* Answer labels - follow 3D objects */
+        .answer-label {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+            transform: translate(-50%, -50%);
+        }
+        .answer-label.visible { display: flex; }
+        .answer-label .label-content {
+            background: white;
+            color: #1a1a2e;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 1.4em;
+            font-weight: 700;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.3);
+            border: 3px solid;
+        }
+        .answer-label[data-index="0"] .label-content { border-color: #22c55e; }
+        .answer-label[data-index="1"] .label-content { border-color: #ef4444; }
+        .answer-label[data-index="2"] .label-content { border-color: #3b82f6; }
+
         #feedback {
             position: fixed;
             top: 0; left: 0;
@@ -166,13 +204,25 @@
         <span class="score-value" id="score">0</span>
     </div>
 
-    <div id="question-panel" class="hidden">
-        <span id="question-text">2 + 3 = ?</span>
-    </div>
-
     <div id="marker-hint" class="hidden">
         <span class="icon">🧸</span>
         Насочи камерата<br>към мечето
+    </div>
+
+    <!-- Question bubble that follows marker -->
+    <div id="question-bubble">
+        <div class="bubble" id="question-text">2 + 3 = ?</div>
+    </div>
+
+    <!-- Answer labels that follow 3D objects -->
+    <div class="answer-label" id="label-0" data-index="0">
+        <div class="label-content">5</div>
+    </div>
+    <div class="answer-label" id="label-1" data-index="1">
+        <div class="label-content">4</div>
+    </div>
+    <div class="answer-label" id="label-2" data-index="2">
+        <div class="label-content">6</div>
     </div>
 
     <div id="mode-selector" class="hidden">
@@ -203,53 +253,73 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;">
 
         <a-marker preset="hiro" id="mainMarker">
-            <!-- Answer cards - big boxes for easy touch -->
-            <a-box id="answer-0" class="clickable" position="-0.45 0.25 0"
-                width="0.35" height="0.35" depth="0.35"
-                color="#22c55e"
-                animation="property: position; to: -0.45 0.35 0; dir: alternate; loop: true; dur: 1500; easing: easeInOutSine;"
-                data-answer="0">
-            </a-box>
+            <!-- Butterfly 1 - Green -->
+            <a-entity id="answer-0" class="clickable" position="-0.5 0.4 0" data-answer="0">
+                <a-entity rotation="0 0 0"
+                    animation="property: position; to: -0.45 0.5 0.1; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine;"
+                    animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear;">
+                    <!-- Body -->
+                    <a-sphere radius="0.08" color="#22c55e" position="0 0 0"></a-sphere>
+                    <a-sphere radius="0.05" color="#16a34a" position="0 0.1 0"></a-sphere>
+                    <!-- Wings -->
+                    <a-circle radius="0.12" color="#4ade80" position="0.08 0 0" rotation="0 90 20"
+                        animation="property: rotation; to: 0 90 -20; dir: alternate; loop: true; dur: 300;"></a-circle>
+                    <a-circle radius="0.12" color="#4ade80" position="-0.08 0 0" rotation="0 -90 -20"
+                        animation="property: rotation; to: 0 -90 20; dir: alternate; loop: true; dur: 300;"></a-circle>
+                </a-entity>
+            </a-entity>
 
-            <a-box id="answer-1" class="clickable" position="0 0.3 0"
-                width="0.35" height="0.35" depth="0.35"
-                color="#ef4444"
-                animation="property: position; to: 0 0.4 0; dir: alternate; loop: true; dur: 1700; easing: easeInOutSine;"
-                data-answer="1">
-            </a-box>
+            <!-- Ladybug - Red -->
+            <a-entity id="answer-1" class="clickable" position="0 0.5 0" data-answer="1">
+                <a-entity
+                    animation="property: position; to: 0.05 0.6 -0.05; dir: alternate; loop: true; dur: 2500; easing: easeInOutSine;"
+                    animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 10000; easing: linear;">
+                    <!-- Body -->
+                    <a-sphere radius="0.1" color="#ef4444" position="0 0 0"
+                        theta-length="180" phi-length="360"></a-sphere>
+                    <!-- Head -->
+                    <a-sphere radius="0.05" color="#1a1a2e" position="0 0 0.1"></a-sphere>
+                    <!-- Spots -->
+                    <a-circle radius="0.025" color="#1a1a2e" position="0.05 0.08 0" rotation="-30 0 0"></a-circle>
+                    <a-circle radius="0.025" color="#1a1a2e" position="-0.05 0.08 0" rotation="-30 0 0"></a-circle>
+                    <a-circle radius="0.02" color="#1a1a2e" position="0 0.09 -0.03" rotation="-20 0 0"></a-circle>
+                </a-entity>
+            </a-entity>
 
-            <a-box id="answer-2" class="clickable" position="0.45 0.25 0"
-                width="0.35" height="0.35" depth="0.35"
-                color="#3b82f6"
-                animation="property: position; to: 0.45 0.35 0; dir: alternate; loop: true; dur: 1900; easing: easeInOutSine;"
-                data-answer="2">
-            </a-box>
+            <!-- Butterfly 2 - Blue -->
+            <a-entity id="answer-2" class="clickable" position="0.5 0.4 0" data-answer="2">
+                <a-entity rotation="0 0 0"
+                    animation="property: position; to: 0.55 0.5 -0.1; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine;"
+                    animation__rotate="property: rotation; to: 0 -360 0; loop: true; dur: 7000; easing: linear;">
+                    <!-- Body -->
+                    <a-sphere radius="0.08" color="#3b82f6" position="0 0 0"></a-sphere>
+                    <a-sphere radius="0.05" color="#2563eb" position="0 0.1 0"></a-sphere>
+                    <!-- Wings -->
+                    <a-circle radius="0.12" color="#60a5fa" position="0.08 0 0" rotation="0 90 20"
+                        animation="property: rotation; to: 0 90 -20; dir: alternate; loop: true; dur: 350;"></a-circle>
+                    <a-circle radius="0.12" color="#60a5fa" position="-0.08 0 0" rotation="0 -90 -20"
+                        animation="property: rotation; to: 0 -90 20; dir: alternate; loop: true; dur: 350;"></a-circle>
+                </a-entity>
+            </a-entity>
 
-            <!-- Base ring -->
-            <a-ring position="0 0.01 0" rotation="-90 0 0" radius-inner="0.25" radius-outer="0.35"
-                material="color: #667eea; opacity: 0.6; shader: flat;"></a-ring>
+            <!-- Flowers on ground -->
+            <a-entity position="0 0 0">
+                <a-circle position="-0.3 0.01 0.2" rotation="-90 0 0" radius="0.08" color="#fbbf24"></a-circle>
+                <a-circle position="0.3 0.01 -0.2" rotation="-90 0 0" radius="0.06" color="#f472b6"></a-circle>
+                <a-circle position="0.1 0.01 0.3" rotation="-90 0 0" radius="0.07" color="#a78bfa"></a-circle>
+            </a-entity>
         </a-marker>
 
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        AFRAME.registerComponent('clickhandler', {
-            init: function() {
-                this.el.addEventListener('click', (e) => {
-                    const answer = parseInt(this.el.getAttribute('data-answer'));
-                    if (!isNaN(answer)) {
-                        window.handleAnswerClick(answer);
-                    }
-                });
-            }
-        });
-
         let score = 0;
         let currentMode = 'math';
         let currentQuestion = null;
         let isProcessing = false;
         let markerVisible = false;
+        let animationFrame = null;
 
         const questions = {
             math: [
@@ -275,7 +345,6 @@
             document.getElementById('splash').classList.add('hidden');
             document.getElementById('arScene').classList.remove('hidden');
             document.getElementById('score-panel').classList.remove('hidden');
-            document.getElementById('question-panel').classList.remove('hidden');
             document.getElementById('mode-selector').classList.remove('hidden');
             document.getElementById('marker-hint').classList.remove('hidden');
 
@@ -283,6 +352,7 @@
             setupMarkerEvents();
             setupTouchInteraction();
             loadQuestion();
+            startLabelTracking();
         }
 
         function setupModeButtons() {
@@ -301,33 +371,30 @@
             marker.addEventListener('markerFound', () => {
                 markerVisible = true;
                 document.getElementById('marker-hint').classList.add('hidden');
+                document.getElementById('question-bubble').classList.add('visible');
+                document.querySelectorAll('.answer-label').forEach(l => l.classList.add('visible'));
             });
             marker.addEventListener('markerLost', () => {
                 markerVisible = false;
                 document.getElementById('marker-hint').classList.remove('hidden');
+                document.getElementById('question-bubble').classList.remove('visible');
+                document.querySelectorAll('.answer-label').forEach(l => l.classList.remove('visible'));
             });
         }
 
         function setupTouchInteraction() {
             const scene = document.getElementById('arScene');
 
-            // Wait for scene and add cursor component
             scene.addEventListener('loaded', () => {
-                console.log('Scene loaded');
-
-                // Try multiple approaches
                 const canvas = scene.canvas;
                 if (canvas) {
                     canvas.addEventListener('touchstart', handleCanvasTouch, { passive: false });
                     canvas.addEventListener('click', handleCanvasClick);
-                    console.log('Canvas listeners added');
                 }
             });
 
-            // Global touch handler as backup
             document.body.addEventListener('touchstart', (e) => {
                 if (isProcessing || !markerVisible) return;
-
                 const touch = e.touches[0];
                 checkTouchOnCards(touch.clientX, touch.clientY);
             }, { passive: true });
@@ -335,66 +402,52 @@
 
         function handleCanvasTouch(e) {
             if (isProcessing || !markerVisible) return;
-
             const touch = e.touches[0];
-            console.log('Canvas touch at:', touch.clientX, touch.clientY);
             checkTouchOnCards(touch.clientX, touch.clientY);
         }
 
         function handleCanvasClick(e) {
             if (isProcessing || !markerVisible) return;
-
-            console.log('Canvas click at:', e.clientX, e.clientY);
             checkTouchOnCards(e.clientX, e.clientY);
         }
 
         function checkTouchOnCards(touchX, touchY) {
             const scene = document.getElementById('arScene');
-            if (!scene.renderer || !scene.camera) {
-                console.log('Scene not ready');
-                return;
-            }
+            if (!scene.renderer || !scene.camera) return;
 
             const canvas = scene.canvas;
             const rect = canvas.getBoundingClientRect();
             const threeCamera = scene.camera;
 
-            // Get card elements
             const cards = [
                 document.getElementById('answer-0'),
                 document.getElementById('answer-1'),
                 document.getElementById('answer-2')
             ];
 
-            // Project each card's world position to screen and check distance to touch
             let closestCard = -1;
             let closestDistance = Infinity;
-            const maxDistance = 80; // pixels - tolerance for touch
+            const maxDistance = 80;
 
             cards.forEach((card, index) => {
                 if (!card || card.getAttribute('visible') === 'false') return;
+                if (currentMode === 'quiz' && index === 2) return; // Hide 3rd option in quiz
 
                 const obj = card.object3D;
                 if (!obj) return;
 
-                // Get world position
                 const worldPos = new THREE.Vector3();
                 obj.getWorldPosition(worldPos);
 
-                // Project to screen coordinates
                 const screenPos = worldPos.clone().project(threeCamera);
 
-                // Convert to pixel coordinates
                 const screenX = (screenPos.x * 0.5 + 0.5) * rect.width + rect.left;
                 const screenY = (-screenPos.y * 0.5 + 0.5) * rect.height + rect.top;
 
-                // Calculate distance from touch to card center
                 const distance = Math.sqrt(
                     Math.pow(touchX - screenX, 2) +
                     Math.pow(touchY - screenY, 2)
                 );
-
-                console.log(`Card ${index}: screen(${screenX.toFixed(0)}, ${screenY.toFixed(0)}) dist=${distance.toFixed(0)}`);
 
                 if (distance < closestDistance && distance < maxDistance) {
                     closestDistance = distance;
@@ -403,10 +456,101 @@
             });
 
             if (closestCard >= 0) {
-                console.log('HIT! Card:', closestCard, 'distance:', closestDistance.toFixed(0));
                 handleAnswerClick(closestCard);
+            }
+        }
+
+        function startLabelTracking() {
+            const scene = document.getElementById('arScene');
+            const marker = document.getElementById('mainMarker');
+
+            function updateLabels() {
+                if (!markerVisible || !scene.camera) {
+                    animationFrame = requestAnimationFrame(updateLabels);
+                    return;
+                }
+
+                const canvas = scene.canvas;
+                const rect = canvas.getBoundingClientRect();
+                const threeCamera = scene.camera;
+
+                // Update question bubble position (above marker center)
+                const markerPos = new THREE.Vector3(0, 0.8, 0);
+                marker.object3D.localToWorld(markerPos);
+                const bubbleScreen = markerPos.clone().project(threeCamera);
+                const bubbleX = (bubbleScreen.x * 0.5 + 0.5) * rect.width + rect.left;
+                const bubbleY = (-bubbleScreen.y * 0.5 + 0.5) * rect.height + rect.top;
+
+                const bubble = document.getElementById('question-bubble');
+                bubble.style.left = bubbleX + 'px';
+                bubble.style.top = bubbleY + 'px';
+                bubble.style.transform = 'translate(-50%, -100%)';
+
+                // Update answer labels
+                const cards = [
+                    document.getElementById('answer-0'),
+                    document.getElementById('answer-1'),
+                    document.getElementById('answer-2')
+                ];
+
+                cards.forEach((card, index) => {
+                    const label = document.getElementById('label-' + index);
+                    if (!card || !label) return;
+
+                    // Hide 3rd label in quiz mode
+                    if (currentMode === 'quiz' && index === 2) {
+                        label.classList.remove('visible');
+                        return;
+                    }
+
+                    const obj = card.object3D;
+                    if (!obj) return;
+
+                    const worldPos = new THREE.Vector3();
+                    obj.getWorldPosition(worldPos);
+                    worldPos.y += 0.2; // Offset above the object
+
+                    const screenPos = worldPos.clone().project(threeCamera);
+
+                    const screenX = (screenPos.x * 0.5 + 0.5) * rect.width + rect.left;
+                    const screenY = (-screenPos.y * 0.5 + 0.5) * rect.height + rect.top;
+
+                    label.style.left = screenX + 'px';
+                    label.style.top = screenY + 'px';
+
+                    if (markerVisible) {
+                        label.classList.add('visible');
+                    }
+                });
+
+                animationFrame = requestAnimationFrame(updateLabels);
+            }
+
+            updateLabels();
+        }
+
+        function loadQuestion() {
+            const questionList = questions[currentMode];
+            currentQuestion = questionList[Math.floor(Math.random() * questionList.length)];
+
+            document.getElementById('question-text').textContent = currentQuestion.q;
+
+            // Update answer labels
+            currentQuestion.answers.forEach((answer, i) => {
+                const label = document.getElementById('label-' + i);
+                if (label) {
+                    label.querySelector('.label-content').textContent = answer;
+                }
+            });
+
+            // Show/hide 3rd answer based on mode
+            const answer2 = document.getElementById('answer-2');
+            const label2 = document.getElementById('label-2');
+            if (currentMode === 'quiz') {
+                answer2.setAttribute('visible', 'false');
+                label2.classList.remove('visible');
             } else {
-                console.log('No card hit. Touch at:', touchX.toFixed(0), touchY.toFixed(0));
+                answer2.setAttribute('visible', 'true');
             }
         }
 
@@ -415,16 +559,6 @@
             isProcessing = true;
 
             const isCorrect = index === currentQuestion.correct;
-
-            // Flash the card
-            const card = document.getElementById('answer-' + index);
-            if (card) {
-                const origColor = card.getAttribute('material').color;
-                card.setAttribute('material', 'color', isCorrect ? '#00ff00' : '#ff0000');
-                setTimeout(() => {
-                    card.setAttribute('material', 'color', origColor);
-                }, 300);
-            }
 
             if (isCorrect) {
                 score++;
@@ -441,20 +575,6 @@
                 }, 1000);
             }
         };
-
-        function loadQuestion() {
-            const questionList = questions[currentMode];
-            currentQuestion = questionList[Math.floor(Math.random() * questionList.length)];
-            document.getElementById('question-text').textContent = currentQuestion.q;
-
-            // Update answer visibility for quiz mode
-            const answer2 = document.getElementById('answer-2');
-            if (currentMode === 'quiz') {
-                answer2.setAttribute('visible', 'false');
-            } else {
-                answer2.setAttribute('visible', 'true');
-            }
-        }
 
         function showFeedback(isCorrect) {
             const feedback = document.getElementById('feedback');

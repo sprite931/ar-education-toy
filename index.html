@@ -349,55 +349,65 @@
         }
 
         function checkTouchOnCards(touchX, touchY) {
-            // Get screen positions of each answer card
+            const scene = document.getElementById('arScene');
+            if (!scene.renderer || !scene.camera) {
+                console.log('Scene not ready');
+                return;
+            }
+
+            const canvas = scene.canvas;
+            const rect = canvas.getBoundingClientRect();
+
+            // Normalized device coordinates
+            const mouse = new THREE.Vector2(
+                ((touchX - rect.left) / rect.width) * 2 - 1,
+                -((touchY - rect.top) / rect.height) * 2 + 1
+            );
+
+            console.log('Touch NDC:', mouse.x.toFixed(2), mouse.y.toFixed(2));
+
+            // Use scene's camera directly
+            const threeCamera = scene.camera;
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, threeCamera);
+
+            // Get marker group to find cards in world space
+            const marker = document.getElementById('mainMarker');
+            const markerObject = marker.object3D;
+
+            // Collect all card meshes
             const cards = [
                 document.getElementById('answer-0'),
                 document.getElementById('answer-1'),
                 document.getElementById('answer-2')
             ];
 
-            const scene = document.getElementById('arScene');
-            const camera = document.querySelector('[camera]');
-            if (!camera) return;
-
-            const threeCamera = camera.getObject3D('camera');
-            if (!threeCamera) return;
-
-            const canvas = scene.canvas;
-            const rect = canvas.getBoundingClientRect();
-
-            // Convert touch to normalized device coordinates
-            const mouse = new THREE.Vector2(
-                ((touchX - rect.left) / rect.width) * 2 - 1,
-                -((touchY - rect.top) / rect.height) * 2 + 1
-            );
-
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, threeCamera);
-
-            // Collect all meshes
             const meshesToTest = [];
             cards.forEach((card, index) => {
                 if (!card || card.getAttribute('visible') === 'false') return;
 
-                const mesh = card.getObject3D('mesh');
-                if (mesh) {
-                    mesh.userData.answerIndex = index;
-                    meshesToTest.push(mesh);
+                const obj = card.object3D;
+                if (obj) {
+                    // Tag all children with answer index
+                    obj.traverse((child) => {
+                        child.userData.answerIndex = index;
+                    });
+                    meshesToTest.push(obj);
                 }
             });
 
-            // Test intersection
+            // Raycast against all objects
             const intersects = raycaster.intersectObjects(meshesToTest, true);
 
-            console.log('Raycaster found', intersects.length, 'intersections');
+            console.log('Intersections:', intersects.length);
 
             if (intersects.length > 0) {
-                // Find the answer index
                 let hitObject = intersects[0].object;
+                // Walk up to find answerIndex
                 while (hitObject) {
                     if (hitObject.userData && hitObject.userData.answerIndex !== undefined) {
-                        console.log('Hit answer:', hitObject.userData.answerIndex);
+                        console.log('HIT! Answer:', hitObject.userData.answerIndex);
                         handleAnswerClick(hitObject.userData.answerIndex);
                         return;
                     }

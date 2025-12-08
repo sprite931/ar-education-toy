@@ -321,6 +321,9 @@
         let useFirebase = false;
         let globalSettings = { correctSoundUrl: '', wrongSoundUrl: '' };
 
+        // Preloaded audio elements for instant playback
+        let preloadedSounds = { correct: null, wrong: null };
+
         // Fallback questions (used if Firebase is empty or fails)
         const defaultQuestions = {
             math: [
@@ -350,7 +353,17 @@
                     const data = doc.data();
                     globalSettings.correctSoundUrl = data.correctSoundUrl || '';
                     globalSettings.wrongSoundUrl = data.wrongSoundUrl || '';
-                    console.log('Loaded global settings');
+
+                    // Preload audio files for instant playback
+                    if (globalSettings.correctSoundUrl) {
+                        preloadedSounds.correct = new Audio(globalSettings.correctSoundUrl);
+                        preloadedSounds.correct.load();
+                    }
+                    if (globalSettings.wrongSoundUrl) {
+                        preloadedSounds.wrong = new Audio(globalSettings.wrongSoundUrl);
+                        preloadedSounds.wrong.load();
+                    }
+                    console.log('Loaded global settings and preloaded sounds');
                 }
             } catch (error) {
                 console.error('Error loading settings:', error);
@@ -542,6 +555,9 @@
             const questionList = getQuestions();
             currentQuestion = questionList[Math.floor(Math.random() * questionList.length)];
 
+            console.log('Loading question:', currentQuestion.q);
+            console.log('Answer data:', currentQuestion.answerData);
+
             document.getElementById('question-text').textContent = currentQuestion.q;
 
             // Play question sound if available
@@ -581,9 +597,11 @@
                     answerEntity.setAttribute('position', `${config.posX} ${config.posY} ${config.posZ}`);
                 }
 
-                // Update model if custom URL provided
-                if (modelEntity && config.modelUrl) {
-                    modelEntity.setAttribute('gltf-model', config.modelUrl);
+                // Update model - use custom URL or reset to default butterfly
+                if (modelEntity) {
+                    const modelSrc = config.modelUrl || '#butterfly-model';
+                    modelEntity.setAttribute('gltf-model', modelSrc);
+                    console.log(`Answer ${i} model:`, modelSrc);
                 }
 
                 // Update scale
@@ -657,11 +675,12 @@
             feedback.className = isCorrect ? 'show correct' : 'show wrong';
             setTimeout(() => { feedback.className = ''; }, 1200);
 
-            // Play feedback sound
-            const soundUrl = isCorrect ? globalSettings.correctSoundUrl : globalSettings.wrongSoundUrl;
-            if (soundUrl) {
-                const audio = new Audio(soundUrl);
-                audio.play().catch(e => console.log('Feedback sound failed:', e));
+            // Play feedback sound using preloaded audio
+            const preloadedAudio = isCorrect ? preloadedSounds.correct : preloadedSounds.wrong;
+            if (preloadedAudio) {
+                // Clone and play for instant response
+                preloadedAudio.currentTime = 0;
+                preloadedAudio.play().catch(e => console.log('Feedback sound failed:', e));
             }
         }
     </script>

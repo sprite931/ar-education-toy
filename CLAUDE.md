@@ -7,7 +7,7 @@
 
 **AR Образователна Играчка** - Web-based Augmented Reality приложение за образователни плюшени играчки. Децата насочват камерата към маркер (Hiro) и виждат 3D пеперуди с отговори, които могат да докоснат.
 
-**Demo URL**: https://cosmic-clafoutis-581399.netlify.app
+**Demo URL**: https://sprite931.github.io/ar-education-toy/
 
 ---
 
@@ -175,9 +175,9 @@ WRONG_DELAY = 1000ms
 ## 🔗 Важни линкове
 
 - **GitHub Repo**: https://github.com/sprite931/ar-education-toy
-- **Live Demo**: https://cosmic-clafoutis-581399.netlify.app
+- **Live Demo**: https://sprite931.github.io/ar-education-toy/
+- **Admin Panel**: https://sprite931.github.io/ar-education-toy/admin.html
 - **Firebase Console**: https://console.firebase.google.com/project/ar-bear-education
-- **Admin Panel**: /admin.html (на същия домейн)
 
 ---
 
@@ -185,6 +185,7 @@ WRONG_DELAY = 1000ms
 
 | Дата | Промяна |
 |------|---------|
+| 2025-12-08 | Преместване от Netlify към GitHub Pages |
 | 2025-12-08 | Създаден CLAUDE.md с пълна документация |
 | 2025-12-08 | Firebase интеграция с admin panel |
 | 2025-12-08 | Добавени customization controls и feedback sounds |

@@ -17,7 +17,7 @@ Web-based Augmented Reality приложение за образователни
 ## 🚀 Бърз старт
 
 ### Онлайн версия
-Отворете директно: [AR Education Toy Demo](https://cosmic-clafoutis-581399.netlify.app)
+Отворете директно: [AR Education Toy Demo](https://sprite931.github.io/ar-education-toy/)
 
 ### Локално тестване
 ```bash

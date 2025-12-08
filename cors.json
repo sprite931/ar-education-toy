@@ -1,0 +1,7 @@
+[
+  {
+    "origin": ["https://sprite931.github.io", "http://localhost:8000", "http://127.0.0.1:8000"],
+    "method": ["GET"],
+    "maxAgeSeconds": 3600
+  }
+]

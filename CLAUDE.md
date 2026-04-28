@@ -100,6 +100,37 @@ gs://ar-bear-education.firebasestorage.app/
 
 ---
 
+## 🎨 Modern UI Features (2026-04-28 Merge)
+
+### Ключови подобрения:
+- **Orbit Animation** - 3D моделите се въртят около маркера (8s цикъл)
+- **Gradient UI** - Модерни gradient бутони и панели
+- **Better Mobile Touch** - Подобрена touch detection за mobile устройства
+- **Instruction Overlay** - Елегантна начална инструкция с Hiro marker preview
+- **Success Animations** - Bounce popup и particle effects при верен отговор
+- **Loading States** - Spinner animation при зареждане на AR
+
+### CSS Highlights:
+```css
+/* Modern gradients */
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+backdrop-filter: blur(10px);
+
+/* Orbit animation */
+animation: rotation 8000ms linear infinite;
+
+/* Mobile optimizations */
+@media (max-width: 480px) { ... }
+```
+
+### Архитектура:
+- **Orbit Container** - Централен контейнер който се върти
+- **Billboard Text** - Текстовете винаги гледат към камерата
+- **Dynamic Model Loading** - Моделите се зареждат от Firebase в orbit позиции
+- **Touch Raycasting** - Точно detection на докосвания върху 3D обекти
+
+---
+
 ## 🛠️ Технологии
 
 - **A-Frame 1.4.2** - 3D/VR framework
@@ -185,6 +216,9 @@ WRONG_DELAY = 1000ms
 
 | Дата | Промяна |
 |------|---------|
+| 2026-04-28 | **Modern UI Merge** - Merged firebase backend с modern UI design |
+| 2026-04-28 | Добавени orbit animations, modern gradients, подобрен mobile touch |
+| 2026-04-28 | Преработен в модерен instruction overlay и success animations |
 | 2025-12-08 | Преместване от Netlify към GitHub Pages |
 | 2025-12-08 | Създаден CLAUDE.md с пълна документация |
 | 2025-12-08 | Firebase интеграция с admin panel |

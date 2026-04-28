@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AR Мече - Образователна Играчка</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Billboard component - always face camera (Y-axis only for upright text)
+        AFRAME.registerComponent('billboard', {
+            init: function() {
+                this.vector = new THREE.Vector3();
+            },
+            tick: function () {
+                var camera = this.el.sceneEl.camera;
+                if (!camera) return;
+
+                // Get camera world position
+                camera.getWorldPosition(this.vector);
+
+                // Make element look at camera
+                this.el.object3D.lookAt(this.vector);
+            }
+        });
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #splash {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        #splash h1 { font-size: 2.2em; margin-bottom: 15px; }
+        #splash p { font-size: 1.1em; margin-bottom: 40px; opacity: 0.9; max-width: 300px; }
+        #startBtn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.3em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        #score-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 18px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #score-panel .star { font-size: 1.3em; }
+        #score-panel .score-value { font-size: 1.6em; font-weight: 700; color: #4ade80; }
+
+        #mode-selector {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 6px;
+            background: rgba(255,255,255,0.95);
+            padding: 6px;
+            border-radius: 18px;
+        }
+        .mode-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #64748b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .mode-btn .icon { font-size: 1.3em; }
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        #marker-hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 500;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        #marker-hint.hidden { display: none; }
+        #marker-hint .icon { font-size: 2.5em; margin-bottom: 15px; display: block; }
+
+        /* Question bubble - fixed at top of screen */
+        #question-bubble {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+        }
+        #question-bubble.visible { display: block; }
+        #question-bubble .bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.4em;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+            white-space: nowrap;
+        }
+
+        #feedback {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        #feedback.show { display: flex; }
+        #feedback .content {
+            background: white;
+            padding: 35px 55px;
+            border-radius: 28px;
+            text-align: center;
+            animation: popIn 0.3s ease-out;
+        }
+        #feedback.correct .content { border: 4px solid #22c55e; }
+        #feedback.wrong .content { border: 4px solid #ef4444; }
+        #feedback .emoji { font-size: 3.5em; margin-bottom: 8px; }
+        #feedback .text { font-size: 1.4em; font-weight: 700; color: #1a1a2e; }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div id="splash">
+        <h1>🧸 AR Мече</h1>
+        <p>Насочи камерата към мечето и докосни правилния отговор!</p>
+        <button id="startBtn" onclick="startApp()">🚀 Започни!</button>
+    </div>
+
+    <div id="score-panel" class="hidden">
+        <span class="star">⭐</span>
+        <span class="score-value" id="score">0</span>
+    </div>
+
+    <div id="marker-hint" class="hidden">
+        <span class="icon">🧸</span>
+        Насочи камерата<br>към мечето
+    </div>
+
+    <!-- Question bubble that follows marker -->
+    <div id="question-bubble">
+        <div class="bubble" id="question-text">2 + 3 = ?</div>
+    </div>
+
+
+    <div id="mode-selector" class="hidden">
+        <button class="mode-btn active" data-mode="math">
+            <span class="icon">🔢</span>
+            <span>Математика</span>
+        </button>
+        <button class="mode-btn" data-mode="alphabet">
+            <span class="icon">🔤</span>
+            <span>Азбука</span>
+        </button>
+        <button class="mode-btn" data-mode="quiz">
+            <span class="icon">❓</span>
+            <span>Викторина</span>
+        </button>
+    </div>
+
+    <div id="feedback">
+        <div class="content">
+            <div class="emoji"></div>
+            <div class="text"></div>
+        </div>
+    </div>
+
+    <a-scene id="arScene" class="hidden" embedded
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+        vr-mode-ui="enabled: false"
+        renderer="logarithmicDepthBuffer: true; antialias: true;">
+
+        <!-- Preload 3D model -->
+        <a-assets>
+            <a-asset-item id="butterfly-model" src="assets/models/Butterfly.glb"></a-asset-item>
+        </a-assets>
+
+        <a-marker preset="hiro" id="mainMarker">
+            <!-- Butterfly 1 - Left -->
+            <a-entity id="answer-0" class="clickable" position="-0.6 0.3 0" data-answer="0"
+                animation__move="property: position; to: -0.55 0.45 0.1; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine;">
+                <!-- 3D Text Label - billboard always faces camera -->
+                <a-entity id="text-0" position="0 0.18 0" billboard>
+                    <a-plane width="0.2" height="0.12" color="#22c55e" opacity="0.95"
+                        side="double" shader="flat" position="0 0 -0.005"></a-plane>
+                    <a-entity id="answer-text-0"
+                        troika-text="value: 5; color: white; fontSize: 0.08; maxWidth: 0.18; textAlign: center; anchorX: center; anchorY: middle; outlineWidth: 0.008; outlineColor: #166534"
+                        position="0 0 0.01"></a-entity>
+                </a-entity>
+                <!-- 3D Butterfly model -->
+                <a-entity gltf-model="#butterfly-model" scale="0.02 0.02 0.02" position="0 0 0" rotation="0 0 0"></a-entity>
+            </a-entity>
+
+            <!-- Butterfly 2 - Center -->
+            <a-entity id="answer-1" class="clickable" position="0 0.35 0.3" data-answer="1"
+                animation__move="property: position; to: 0.05 0.5 0.25; dir: alternate; loop: true; dur: 2500; easing: easeInOutSine;">
+                <!-- 3D Text Label -->
+                <a-entity id="text-1" position="0 0.18 0" billboard>
+                    <a-plane width="0.2" height="0.12" color="#ef4444" opacity="0.95"
+                        side="double" shader="flat" position="0 0 -0.005"></a-plane>
+                    <a-entity id="answer-text-1"
+                        troika-text="value: 4; color: white; fontSize: 0.08; maxWidth: 0.18; textAlign: center; anchorX: center; anchorY: middle; outlineWidth: 0.008; outlineColor: #991b1b"
+                        position="0 0 0.01"></a-entity>
+                </a-entity>
+                <!-- 3D Butterfly model -->
+                <a-entity gltf-model="#butterfly-model" scale="0.02 0.02 0.02" position="0 0 0" rotation="0 45 0"></a-entity>
+            </a-entity>
+
+            <!-- Butterfly 3 - Right -->
+            <a-entity id="answer-2" class="clickable" position="0.6 0.3 0" data-answer="2"
+                animation__move="property: position; to: 0.65 0.45 -0.1; dir: alternate; loop: true; dur: 1800; easing: easeInOutSine;">
+                <!-- 3D Text Label -->
+                <a-entity id="text-2" position="0 0.18 0" billboard>
+                    <a-plane width="0.2" height="0.12" color="#3b82f6" opacity="0.95"
+                        side="double" shader="flat" position="0 0 -0.005"></a-plane>
+                    <a-entity id="answer-text-2"
+                        troika-text="value: 6; color: white; fontSize: 0.08; maxWidth: 0.18; textAlign: center; anchorX: center; anchorY: middle; outlineWidth: 0.008; outlineColor: #1e40af"
+                        position="0 0 0.01"></a-entity>
+                </a-entity>
+                <!-- 3D Butterfly model -->
+                <a-entity gltf-model="#butterfly-model" scale="0.02 0.02 0.02" position="0 0 0" rotation="0 -45 0"></a-entity>
+            </a-entity>
+
+            <!-- Flowers on ground -->
+            <a-entity position="0 0 0">
+                <a-circle position="-0.3 0.01 0.2" rotation="-90 0 0" radius="0.08" color="#fbbf24"></a-circle>
+                <a-circle position="0.3 0.01 -0.2" rotation="-90 0 0" radius="0.06" color="#f472b6"></a-circle>
+                <a-circle position="0.1 0.01 0.3" rotation="-90 0 0" radius="0.07" color="#a78bfa"></a-circle>
+            </a-entity>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQxYVcVSlxUZ6d4t87IppRRpD7r4R7DDk",
+            authDomain: "ar-bear-education.firebaseapp.com",
+            projectId: "ar-bear-education",
+            storageBucket: "ar-bear-education.firebasestorage.app",
+            messagingSenderId: "866761773486",
+            appId: "1:866761773486:web:5dafa80d01a6b94372b83f",
+            measurementId: "G-1ELMXFB3YN"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let score = 0;
+        let currentMode = 'math';
+        let currentQuestion = null;
+        let isProcessing = false;
+        let markerVisible = false;
+        let animationFrame = null;
+        let firebaseQuestions = { math: [], alphabet: [], quiz: [] };
+        let useFirebase = false;
+        let globalSettings = { correctSoundUrl: '', wrongSoundUrl: '' };
+
+        // Preloaded audio elements for instant playback
+        let preloadedSounds = { correct: null, wrong: null };
+
+        // Fallback questions (used if Firebase is empty or fails)
+        const defaultQuestions = {
+            math: [
+                { q: '2 + 3 = ?', answers: ['5', '4', '6'], correct: 0 },
+                { q: '5 - 2 = ?', answers: ['3', '4', '2'], correct: 0 },
+                { q: '4 + 4 = ?', answers: ['8', '7', '9'], correct: 0 },
+                { q: '7 - 3 = ?', answers: ['4', '5', '3'], correct: 0 },
+                { q: '6 + 2 = ?', answers: ['8', '7', '9'], correct: 0 },
+            ],
+            alphabet: [
+                { q: 'Коя буква е първа?', answers: ['А', 'Б', 'В'], correct: 0 },
+                { q: 'Коя идва след А?', answers: ['Б', 'В', 'Г'], correct: 0 },
+                { q: 'Коя идва след Б?', answers: ['В', 'Г', 'Д'], correct: 0 },
+            ],
+            quiz: [
+                { q: 'Слънцето топло ли е?', answers: ['Да', 'Не', '-'], correct: 0 },
+                { q: 'Рибите летят ли?', answers: ['Да', 'Не', '-'], correct: 1 },
+                { q: 'Небето синьо ли е?', answers: ['Да', 'Не', '-'], correct: 0 },
+            ]
+        };
+
+        // Load global settings from Firebase
+        async function loadGlobalSettings() {
+            try {
+                const doc = await db.collection('settings').doc('global').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    globalSettings.correctSoundUrl = data.correctSoundUrl || '';
+                    globalSettings.wrongSoundUrl = data.wrongSoundUrl || '';
+
+                    // Preload audio files for instant playback
+                    if (globalSettings.correctSoundUrl) {
+                        preloadedSounds.correct = new Audio(globalSettings.correctSoundUrl);
+                        preloadedSounds.correct.load();
+                    }
+                    if (globalSettings.wrongSoundUrl) {
+                        preloadedSounds.wrong = new Audio(globalSettings.wrongSoundUrl);
+                        preloadedSounds.wrong.load();
+                    }
+                    console.log('Loaded global settings and preloaded sounds');
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Load questions from Firebase
+        async function loadFirebaseQuestions() {
+            try {
+                // Load settings in parallel
+                await loadGlobalSettings();
+
+                const snapshot = await db.collection('questions').get();
+                if (snapshot.empty) {
+                    console.log('No Firebase questions, using defaults');
+                    return;
+                }
+
+                // Reset Firebase questions
+                firebaseQuestions = { math: [], alphabet: [], quiz: [] };
+
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const category = data.category || 'math';
+
+                    // Convert Firebase format to app format
+                    const question = {
+                        q: data.text,
+                        answers: data.answers.map(a => a.text),
+                        correct: data.correct,
+                        // Store full answer data for model/sound info
+                        answerData: data.answers,
+                        soundUrl: data.soundUrl || null
+                    };
+
+                    if (firebaseQuestions[category]) {
+                        firebaseQuestions[category].push(question);
+                    }
+                });
+
+                // Check if we have any Firebase questions
+                const totalQuestions = Object.values(firebaseQuestions).reduce((sum, arr) => sum + arr.length, 0);
+                if (totalQuestions > 0) {
+                    useFirebase = true;
+                    console.log('Loaded', totalQuestions, 'questions from Firebase');
+                }
+            } catch (error) {
+                console.error('Error loading Firebase questions:', error);
+            }
+        }
+
+        // Get questions for current mode (Firebase or default)
+        function getQuestions() {
+            if (useFirebase && firebaseQuestions[currentMode].length > 0) {
+                return firebaseQuestions[currentMode];
+            }
+            return defaultQuestions[currentMode];
+        }
+
+        async function startApp() {
+            document.getElementById('splash').classList.add('hidden');
+            document.getElementById('arScene').classList.remove('hidden');
+            document.getElementById('score-panel').classList.remove('hidden');
+            document.getElementById('mode-selector').classList.remove('hidden');
+            document.getElementById('marker-hint').classList.remove('hidden');
+
+            // Load questions from Firebase
+            await loadFirebaseQuestions();
+
+            setupModeButtons();
+            setupMarkerEvents();
+            setupTouchInteraction();
+            loadQuestion();
+        }
+
+        function setupModeButtons() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentMode = btn.dataset.mode;
+                    loadQuestion();
+                });
+            });
+        }
+
+        function setupMarkerEvents() {
+            const marker = document.getElementById('mainMarker');
+            marker.addEventListener('markerFound', () => {
+                markerVisible = true;
+                document.getElementById('marker-hint').classList.add('hidden');
+                document.getElementById('question-bubble').classList.add('visible');
+            });
+            marker.addEventListener('markerLost', () => {
+                markerVisible = false;
+                document.getElementById('marker-hint').classList.remove('hidden');
+                document.getElementById('question-bubble').classList.remove('visible');
+            });
+        }
+
+        function setupTouchInteraction() {
+            const scene = document.getElementById('arScene');
+
+            scene.addEventListener('loaded', () => {
+                const canvas = scene.canvas;
+                if (canvas) {
+                    canvas.addEventListener('touchstart', handleCanvasTouch, { passive: false });
+                    canvas.addEventListener('click', handleCanvasClick);
+                }
+            });
+
+            document.body.addEventListener('touchstart', (e) => {
+                if (isProcessing || !markerVisible) return;
+                const touch = e.touches[0];
+                checkTouchOnCards(touch.clientX, touch.clientY);
+            }, { passive: true });
+        }
+
+        function handleCanvasTouch(e) {
+            if (isProcessing || !markerVisible) return;
+            const touch = e.touches[0];
+            checkTouchOnCards(touch.clientX, touch.clientY);
+        }
+
+        function handleCanvasClick(e) {
+            if (isProcessing || !markerVisible) return;
+            checkTouchOnCards(e.clientX, e.clientY);
+        }
+
+        function checkTouchOnCards(touchX, touchY) {
+            const scene = document.getElementById('arScene');
+            if (!scene.renderer || !scene.camera) return;
+
+            const canvas = scene.canvas;
+            const rect = canvas.getBoundingClientRect();
+            const threeCamera = scene.camera;
+
+            const cards = [
+                document.getElementById('answer-0'),
+                document.getElementById('answer-1'),
+                document.getElementById('answer-2')
+            ];
+
+            let closestCard = -1;
+            let closestDistance = Infinity;
+            const maxDistance = 80;
+
+            cards.forEach((card, index) => {
+                if (!card || card.getAttribute('visible') === 'false') return;
+                if (currentMode === 'quiz' && index === 2) return; // Hide 3rd option in quiz
+
+                const obj = card.object3D;
+                if (!obj) return;
+
+                const worldPos = new THREE.Vector3();
+                obj.getWorldPosition(worldPos);
+
+                const screenPos = worldPos.clone().project(threeCamera);
+
+                const screenX = (screenPos.x * 0.5 + 0.5) * rect.width + rect.left;
+                const screenY = (-screenPos.y * 0.5 + 0.5) * rect.height + rect.top;
+
+                const distance = Math.sqrt(
+                    Math.pow(touchX - screenX, 2) +
+                    Math.pow(touchY - screenY, 2)
+                );
+
+                if (distance < closestDistance && distance < maxDistance) {
+                    closestDistance = distance;
+                    closestCard = index;
+                }
+            });
+
+            if (closestCard >= 0) {
+                handleAnswerClick(closestCard);
+            }
+        }
+
+        // Question bubble is now fixed via CSS - no tracking needed
+
+        // Default answer positions and animations
+        const defaultAnswerConfigs = [
+            { posX: -0.6, posY: 0.3, posZ: 0, moveRange: 0.15, speed: 2000, rotation: 0, scale: 0.02 },
+            { posX: 0, posY: 0.35, posZ: 0.3, moveRange: 0.15, speed: 2500, rotation: 45, scale: 0.02 },
+            { posX: 0.6, posY: 0.3, posZ: 0, moveRange: 0.15, speed: 1800, rotation: -45, scale: 0.02 }
+        ];
+
+        function loadQuestion() {
+            const questionList = getQuestions();
+            currentQuestion = questionList[Math.floor(Math.random() * questionList.length)];
+
+            console.log('Loading question:', currentQuestion.q);
+            console.log('Answer data:', currentQuestion.answerData);
+
+            document.getElementById('question-text').textContent = currentQuestion.q;
+
+            // Play question sound if available
+            if (currentQuestion.soundUrl) {
+                const audio = new Audio(currentQuestion.soundUrl);
+                audio.play().catch(e => console.log('Audio play failed:', e));
+            }
+
+            // Update 3D answer text labels and models
+            currentQuestion.answers.forEach((answer, i) => {
+                const textEl = document.getElementById('answer-text-' + i);
+                const answerEntity = document.getElementById('answer-' + i);
+                const modelEntity = answerEntity ? answerEntity.querySelector('[gltf-model]') : null;
+
+                if (textEl) {
+                    textEl.setAttribute('troika-text', 'value', answer);
+                }
+
+                // Get config from Firebase or use defaults
+                const defaults = defaultAnswerConfigs[i];
+                let config = { ...defaults };
+
+                if (currentQuestion.answerData && currentQuestion.answerData[i]) {
+                    const answerConfig = currentQuestion.answerData[i];
+                    config.posX = answerConfig.posX !== undefined ? answerConfig.posX : defaults.posX;
+                    config.posY = answerConfig.posY !== undefined ? answerConfig.posY : defaults.posY;
+                    config.posZ = answerConfig.posZ !== undefined ? answerConfig.posZ : defaults.posZ;
+                    config.moveRange = answerConfig.moveRange !== undefined ? answerConfig.moveRange : defaults.moveRange;
+                    config.speed = answerConfig.speed || defaults.speed;
+                    config.rotation = answerConfig.rotation !== undefined ? answerConfig.rotation : defaults.rotation;
+                    config.scale = answerConfig.scale || defaults.scale;
+                    config.modelUrl = answerConfig.modelUrl || null;
+                }
+
+                // Apply position
+                if (answerEntity) {
+                    answerEntity.setAttribute('position', `${config.posX} ${config.posY} ${config.posZ}`);
+                }
+
+                // Update model - use custom URL or reset to default butterfly
+                if (modelEntity) {
+                    const modelSrc = config.modelUrl || '#butterfly-model';
+                    modelEntity.setAttribute('gltf-model', modelSrc);
+                    console.log(`Answer ${i} model:`, modelSrc);
+                }
+
+                // Update scale
+                if (modelEntity) {
+                    const s = config.scale;
+                    modelEntity.setAttribute('scale', `${s} ${s} ${s}`);
+                }
+
+                // Update rotation
+                if (modelEntity) {
+                    modelEntity.setAttribute('rotation', `0 ${config.rotation} 0`);
+                }
+
+                // Update animation with position and moveRange
+                if (answerEntity) {
+                    const toX = config.posX + (config.moveRange * 0.3);
+                    const toY = config.posY + config.moveRange;
+                    const toZ = config.posZ + (config.moveRange * 0.5);
+
+                    if (config.moveRange > 0) {
+                        answerEntity.setAttribute('animation__move', {
+                            property: 'position',
+                            to: `${toX} ${toY} ${toZ}`,
+                            dir: 'alternate',
+                            loop: true,
+                            dur: config.speed,
+                            easing: 'easeInOutSine'
+                        });
+                    } else {
+                        // Remove animation if moveRange is 0
+                        answerEntity.removeAttribute('animation__move');
+                    }
+                }
+            });
+
+            // Show/hide 3rd answer based on mode
+            const answer2 = document.getElementById('answer-2');
+            if (currentMode === 'quiz') {
+                answer2.setAttribute('visible', 'false');
+            } else {
+                answer2.setAttribute('visible', 'true');
+            }
+        }
+
+        window.handleAnswerClick = function(index) {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            const isCorrect = index === currentQuestion.correct;
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('score').textContent = score;
+                showFeedback(true);
+                setTimeout(() => {
+                    loadQuestion();
+                    isProcessing = false;
+                }, 1500);
+            } else {
+                showFeedback(false);
+                setTimeout(() => {
+                    isProcessing = false;
+                }, 1000);
+            }
+        };
+
+        function showFeedback(isCorrect) {
+            const feedback = document.getElementById('feedback');
+            feedback.querySelector('.emoji').textContent = isCorrect ? '🎉' : '😅';
+            feedback.querySelector('.text').textContent = isCorrect ? 'Браво!' : 'Опитай пак!';
+            feedback.className = isCorrect ? 'show correct' : 'show wrong';
+            setTimeout(() => { feedback.className = ''; }, 1200);
+
+            // Play feedback sound using preloaded audio
+            const preloadedAudio = isCorrect ? preloadedSounds.correct : preloadedSounds.wrong;
+            if (preloadedAudio) {
+                // Clone and play for instant response
+                preloadedAudio.currentTime = 0;
+                preloadedAudio.play().catch(e => console.log('Feedback sound failed:', e));
+            }
+        }
+    </script>
+</body>
+</html>

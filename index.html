@@ -18,6 +18,9 @@
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
     
+    <!-- AR Layout System -->
+    <script src="js/ar-layout.js"></script>
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -390,7 +393,7 @@
                       animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear;">
                 
                 <!-- Answer slots - will be populated dynamically from Firebase -->
-                <a-entity id="answer-0" class="clickable" data-answer-index="0" position="0.8 0.5 0">
+                <a-entity id="answer-0" class="clickable answer-model" data-answer-index="0" position="0.8 0.5 0">
                     <!-- 3D Text Label - billboard always faces camera -->
                     <a-entity position="0 0.18 0" billboard>
                         <a-plane width="0.2" height="0.12" color="#22c55e" opacity="0.95"
@@ -403,7 +406,7 @@
                     <a-entity class="model-container"></a-entity>
                 </a-entity>
                 
-                <a-entity id="answer-1" class="clickable" data-answer-index="1" position="0 0.5 0.8">
+                <a-entity id="answer-1" class="clickable answer-model" data-answer-index="1" position="0 0.5 0.8">
                     <!-- 3D Text Label -->
                     <a-entity position="0 0.18 0" billboard>
                         <a-plane width="0.2" height="0.12" color="#ef4444" opacity="0.95"
@@ -416,7 +419,7 @@
                     <a-entity class="model-container"></a-entity>
                 </a-entity>
                 
-                <a-entity id="answer-2" class="clickable" data-answer-index="2" position="-0.8 0.5 0">
+                <a-entity id="answer-2" class="clickable answer-model" data-answer-index="2" position="-0.8 0.5 0">
                     <!-- 3D Text Label -->
                     <a-entity position="0 0.18 0" billboard>
                         <a-plane width="0.2" height="0.12" color="#3b82f6" opacity="0.95"
@@ -431,7 +434,7 @@
             </a-entity>
 
             <!-- Question Text -->
-            <a-entity position="0 1.2 0">
+            <a-entity id="questionText" position="0 1.2 0">
                 <a-plane width="2.5" height="0.6" color="#667eea" opacity="0.9"></a-plane>
                 <a-text 
                     id="questionText"
@@ -455,9 +458,9 @@
 
             <!-- Flowers on ground -->
             <a-entity position="0 0 0">
-                <a-circle position="-0.3 0.01 0.2" rotation="-90 0 0" radius="0.08" color="#fbbf24"></a-circle>
-                <a-circle position="0.3 0.01 -0.2" rotation="-90 0 0" radius="0.06" color="#f472b6"></a-circle>
-                <a-circle position="0.1 0.01 0.3" rotation="-90 0 0" radius="0.07" color="#a78bfa"></a-circle>
+                <a-circle class="ground-element" position="-0.3 0.01 0.2" rotation="-90 0 0" radius="0.08" color="#fbbf24"></a-circle>
+                <a-circle class="ground-element" position="0.3 0.01 -0.2" rotation="-90 0 0" radius="0.06" color="#f472b6"></a-circle>
+                <a-circle class="ground-element" position="0.1 0.01 0.3" rotation="-90 0 0" radius="0.07" color="#a78bfa"></a-circle>
             </a-entity>
         </a-marker>
 
@@ -515,12 +518,14 @@
             ]
         };
 
-        // Default orbit positions for answers (will orbit around marker)
-        const orbitPositions = [
-            { x: 0.8, y: 0.5, z: 0 },      // Right
-            { x: 0, y: 0.5, z: 0.8 },      // Front
-            { x: -0.8, y: 0.5, z: 0 }      // Left
-        ];
+        // Dynamic orbit positions using AR Layout system
+        function getOrbitPositions(answerCount = 3) {
+            const positions = [];
+            for (let i = 0; i < answerCount; i++) {
+                positions.push(ARLayout.positionContent('orbit', i, answerCount));
+            }
+            return positions;
+        }
 
         // === FIREBASE FUNCTIONS ===
 
@@ -756,12 +761,28 @@
 
             document.getElementById('questionText').setAttribute('value', currentQuestion.q);
 
+            // Update question position using AR Layout system
+            const questionPos = ARLayout.positionContent('above');
+            const questionEntity = document.getElementById('questionText');
+            questionEntity.setAttribute('position', `${questionPos.x} ${questionPos.y} ${questionPos.z}`);
+
+            // Update ground elements positions
+            const groundElements = document.querySelectorAll('.ground-element');
+            groundElements.forEach((el, index) => {
+                const groundPos = ARLayout.positionContent('ground', index, groundElements.length);
+                el.setAttribute('position', `${groundPos.x} ${groundPos.y} ${groundPos.z}`);
+            });
+
             // Play question sound if available
             if (currentQuestion.soundUrl) {
                 const audio = new Audio(currentQuestion.soundUrl);
                 audio.play().catch(e => console.log('Audio play failed:', e));
             }
 
+            // Get dynamic positions based on answer count
+            const answerCount = currentMode === 'quiz' ? 2 : 3;
+            const orbitPositions = getOrbitPositions(answerCount);
+            
             // Update answer text labels and load models
             currentQuestion.answers.forEach((answer, i) => {
                 const textEl = document.getElementById('answer-text-' + i);
@@ -788,11 +809,12 @@
                     rotation = currentQuestion.answerData[i].rotation || rotation;
                 }
 
-                const modelEntity = loadGLTFModel(modelUrl, orbitPositions[i], rotation, scale, i);
+                // Use AR Layout positioning if available
+                const pos = orbitPositions[i] || { x: 0, y: 0.5, z: 0 };
+                const modelEntity = loadGLTFModel(modelUrl, pos, rotation, scale, i);
                 modelContainer.appendChild(modelEntity);
 
-                // Set orbit position
-                const pos = orbitPositions[i];
+                // Set orbit position using AR Layout system
                 answerEntity.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
             });
 

@@ -1,0 +1,416 @@
+{
+  "project": "AR Educational Toy - Personalizirai.bg",
+  "description": "QR code-activated AR learning experience for plush toys with Firebase backend",
+  "repository": "https://github.com/sprite931/ar-education-toy",
+  "live_url": "https://sprite931.github.io/ar-education-toy/",
+  "last_updated": "2026-04-29",
+  
+  "roadmap": {
+    "phase_1_core_ar": {
+      "name": "Phase 1: Core AR Functionality",
+      "status": "completed",
+      "completion_date": "2024-Q4",
+      "features": [
+        {
+          "id": "ar-1",
+          "name": "A-Frame AR.js Integration",
+          "status": "completed",
+          "description": "AR marker tracking with Hiro pattern",
+          "files": ["index.html", "aframe-ar.js"]
+        },
+        {
+          "id": "ar-2",
+          "name": "3D Bear Model Display",
+          "status": "completed",
+          "description": "Animated 3D bear model on AR marker",
+          "files": ["index.html"]
+        },
+        {
+          "id": "ar-3",
+          "name": "Camera Permissions",
+          "status": "completed",
+          "description": "Webcam access for AR tracking",
+          "files": ["index.html"]
+        }
+      ]
+    },
+    
+    "phase_2_firebase": {
+      "name": "Phase 2: Firebase Backend",
+      "status": "completed",
+      "completion_date": "2025-Q1",
+      "features": [
+        {
+          "id": "fb-1",
+          "name": "Firebase Integration",
+          "status": "completed",
+          "description": "Firestore database + Authentication",
+          "files": ["firebase-config.js", "index.html"]
+        },
+        {
+          "id": "fb-2",
+          "name": "QR Code System",
+          "status": "completed",
+          "description": "QR code generation and validation",
+          "files": ["admin.html", "js/qr-generator.js"]
+        },
+        {
+          "id": "fb-3",
+          "name": "Admin Panel",
+          "status": "completed",
+          "description": "QR code management dashboard",
+          "files": ["admin.html", "css/admin.css"]
+        }
+      ]
+    },
+    
+    "phase_3_content": {
+      "name": "Phase 3: Educational Content",
+      "status": "completed",
+      "completion_date": "2025-Q2",
+      "features": [
+        {
+          "id": "edu-1",
+          "name": "Math Exercises",
+          "status": "completed",
+          "description": "Interactive math problems",
+          "files": ["js/content-manager.js"]
+        },
+        {
+          "id": "edu-2",
+          "name": "Bulgarian Alphabet",
+          "status": "completed",
+          "description": "Letter learning with audio",
+          "files": ["js/content-manager.js"]
+        },
+        {
+          "id": "edu-3",
+          "name": "Quiz System",
+          "status": "completed",
+          "description": "Interactive quizzes with scoring",
+          "files": ["js/quiz.js"]
+        }
+      ]
+    },
+    
+    "phase_4_pwa": {
+      "name": "Phase 4: PWA Implementation",
+      "status": "in_progress",
+      "current_priority": true,
+      "features": [
+        {
+          "id": "pwa-1",
+          "name": "Service Worker",
+          "status": "completed",
+          "description": "Offline caching with cache-first strategy",
+          "files": ["service-worker.js"]
+        },
+        {
+          "id": "pwa-2",
+          "name": "Manifest.json",
+          "status": "completed",
+          "description": "PWA metadata and configuration",
+          "files": ["manifest.json"]
+        },
+        {
+          "id": "pwa-3",
+          "name": "PWA Icons",
+          "status": "completed",
+          "description": "App icons (48-512px) using launchericon files",
+          "files": [
+            "assets/icons/launchericon-48x48.png",
+            "assets/icons/launchericon-72x72.png",
+            "assets/icons/launchericon-96x96.png",
+            "assets/icons/launchericon-144x144.png",
+            "assets/icons/launchericon-192x192.png",
+            "assets/icons/launchericon-512x512.png"
+          ],
+          "notes": "Generated with external tool, uploaded manually"
+        },
+        {
+          "id": "pwa-4",
+          "name": "Install Prompt Handler",
+          "status": "in_progress",
+          "description": "Add to Home Screen functionality",
+          "files": ["pwa-install.js"],
+          "blockers": [
+            "Install banner not showing despite PWA criteria met",
+            "Native Chrome banner blocked by preventDefault() - FIXED but needs testing",
+            "Service worker caching old manifest/icons - needs cache clear workflow"
+          ],
+          "next_steps": [
+            "Test native Chrome install banner after recent pwa-install.js simplification",
+            "Verify icons load without errors after cache clear",
+            "Add manual install instructions if banner doesn't appear",
+            "Consider custom install UI with immediate trigger (no 30s delay)"
+          ]
+        },
+        {
+          "id": "pwa-5",
+          "name": "Offline Functionality",
+          "status": "partial",
+          "description": "App works offline with cached content",
+          "notes": "Service worker caches static assets; Firebase data needs network",
+          "improvements_needed": [
+            "Cache educational content for offline use",
+            "Add offline indicator UI",
+            "Queue Firebase writes when offline"
+          ]
+        }
+      ]
+    },
+    
+    "phase_5_subscription": {
+      "name": "Phase 5: Subscription Model",
+      "status": "planned",
+      "features": [
+        {
+          "id": "sub-1",
+          "name": "Payment Integration",
+          "status": "not_started",
+          "description": "Stripe/PayPal integration",
+          "priority": "high"
+        },
+        {
+          "id": "sub-2",
+          "name": "Subscription Tiers",
+          "status": "not_started",
+          "description": "Basic/Premium/Family plans",
+          "priority": "high"
+        },
+        {
+          "id": "sub-3",
+          "name": "Content Unlocking",
+          "status": "not_started",
+          "description": "Premium content behind paywall",
+          "priority": "medium"
+        },
+        {
+          "id": "sub-4",
+          "name": "QR Code Product SKUs",
+          "status": "not_started",
+          "description": "Link QR codes to purchased products",
+          "priority": "high"
+        }
+      ]
+    },
+    
+    "phase_6_ux": {
+      "name": "Phase 6: UX Improvements",
+      "status": "ongoing",
+      "features": [
+        {
+          "id": "ux-1",
+          "name": "Loading Screens",
+          "status": "completed",
+          "description": "Bear animation while AR initializes",
+          "files": ["css/loading.css"]
+        },
+        {
+          "id": "ux-2",
+          "name": "Bulgarian Localization",
+          "status": "completed",
+          "description": "Full Bulgarian UI/content",
+          "files": ["index.html", "admin.html"]
+        },
+        {
+          "id": "ux-3",
+          "name": "Responsive Design",
+          "status": "in_progress",
+          "description": "Mobile-first responsive layout",
+          "improvements_needed": [
+            "Better tablet support",
+            "Landscape mode handling",
+            "Touch gesture improvements"
+          ]
+        },
+        {
+          "id": "ux-4",
+          "name": "Onboarding Tutorial",
+          "status": "not_started",
+          "description": "First-time user walkthrough",
+          "priority": "medium"
+        }
+      ]
+    },
+    
+    "phase_7_analytics": {
+      "name": "Phase 7: Analytics & Monitoring",
+      "status": "planned",
+      "features": [
+        {
+          "id": "ana-1",
+          "name": "Google Analytics",
+          "status": "not_started",
+          "description": "User behavior tracking",
+          "priority": "medium"
+        },
+        {
+          "id": "ana-2",
+          "name": "Error Tracking",
+          "status": "not_started",
+          "description": "Sentry/Rollbar integration",
+          "priority": "low"
+        },
+        {
+          "id": "ana-3",
+          "name": "Usage Dashboard",
+          "status": "not_started",
+          "description": "Admin analytics view",
+          "priority": "low"
+        }
+      ]
+    },
+    
+    "phase_8_content_expansion": {
+      "name": "Phase 8: Content Expansion",
+      "status": "planned",
+      "features": [
+        {
+          "id": "con-1",
+          "name": "More Math Topics",
+          "status": "not_started",
+          "description": "Geometry, fractions, word problems",
+          "priority": "high"
+        },
+        {
+          "id": "con-2",
+          "name": "English Learning",
+          "status": "not_started",
+          "description": "English alphabet and vocabulary",
+          "priority": "medium"
+        },
+        {
+          "id": "con-3",
+          "name": "Science Content",
+          "status": "not_started",
+          "description": "Basic science concepts",
+          "priority": "low"
+        },
+        {
+          "id": "con-4",
+          "name": "Custom Content Upload",
+          "status": "not_started",
+          "description": "Parents create custom lessons",
+          "priority": "low"
+        }
+      ]
+    }
+  },
+  
+  "technical_debt": [
+    {
+      "id": "debt-1",
+      "title": "Service Worker Cache Management",
+      "severity": "high",
+      "description": "Service worker aggressively caches manifest.json and icons, making updates invisible to users without manual cache clear",
+      "impact": "PWA updates don't appear; icon changes not reflected",
+      "proposed_solution": "Implement versioned cache names with automatic cleanup of old caches on service worker update"
+    },
+    {
+      "id": "debt-2",
+      "title": "Firebase Config Security",
+      "severity": "medium",
+      "description": "Firebase config exposed in client-side code",
+      "impact": "API keys visible in source code",
+      "proposed_solution": "Move sensitive operations to Firebase Functions, implement security rules"
+    },
+    {
+      "id": "debt-3",
+      "title": "A-Frame Performance",
+      "severity": "low",
+      "description": "AR tracking can be slow on older devices",
+      "impact": "Poor UX on budget phones",
+      "proposed_solution": "Optimize 3D models, reduce polygon count, implement quality settings"
+    }
+  ],
+  
+  "known_issues": [
+    {
+      "id": "issue-1",
+      "title": "PWA Install Banner Not Showing",
+      "status": "investigating",
+      "reported": "2026-04-29",
+      "description": "Install banner doesn't appear despite meeting PWA criteria",
+      "steps_to_reproduce": [
+        "Open https://sprite931.github.io/ar-education-toy/",
+        "Wait 30+ seconds",
+        "Interact with page (click/scroll)",
+        "Expected: Install banner appears",
+        "Actual: No banner"
+      ],
+      "debugging_done": [
+        "Verified manifest.json loads correctly",
+        "Verified service worker registers and activates",
+        "Verified icons exist and are valid PNG files",
+        "Fixed icon download errors (emoji in ImageMagick generated invalid PNGs)",
+        "Uploaded new launchericon files manually",
+        "Simplified pwa-install.js to allow native Chrome banner"
+      ],
+      "current_status": "Awaiting testing after latest pwa-install.js update",
+      "workaround": "Users can manually install via Chrome menu → 'Install AR Играчка'"
+    },
+    {
+      "id": "issue-2",
+      "title": "Console Warnings: troika-text Unknown Properties",
+      "status": "low_priority",
+      "description": "A-Frame schema warnings about troika-text component",
+      "impact": "Console noise, no functional impact"
+    }
+  ],
+  
+  "deployment": {
+    "hosting": "GitHub Pages",
+    "domain": "sprite931.github.io/ar-education-toy",
+    "custom_domain_planned": "personalizirai.bg/ar-toy (future)",
+    "ssl": "Automatic via GitHub Pages",
+    "cdn": "GitHub CDN",
+    "deployment_method": "Git push to main branch"
+  },
+  
+  "business_goals": {
+    "revenue_threshold": "€5,000/month or 1,000+ active users before considering native app",
+    "initial_target": "Validate QR code business model with web PWA",
+    "monetization": "Subscription-based (Basic/Premium tiers)",
+    "target_market": "Bulgarian parents with children ages 3-8",
+    "competitive_advantage": "QR code integration with physical plush toys"
+  },
+  
+  "next_actions": [
+    {
+      "priority": 1,
+      "action": "Test PWA install banner after latest code changes",
+      "assignee": "Daniel",
+      "estimated_effort": "10 minutes",
+      "blockers": "None"
+    },
+    {
+      "priority": 2,
+      "action": "If banner still doesn't work, add manual install instructions to UI",
+      "assignee": "Claude/Daniel",
+      "estimated_effort": "30 minutes",
+      "blockers": "Awaiting PWA test results"
+    },
+    {
+      "priority": 3,
+      "action": "Implement versioned service worker caching",
+      "assignee": "Claude/Daniel",
+      "estimated_effort": "2 hours",
+      "blockers": "None"
+    },
+    {
+      "priority": 4,
+      "action": "Design subscription model and pricing",
+      "assignee": "Daniel",
+      "estimated_effort": "Research phase",
+      "blockers": "None"
+    },
+    {
+      "priority": 5,
+      "action": "Integrate payment provider (Stripe/PayPal)",
+      "assignee": "Claude/Daniel",
+      "estimated_effort": "1-2 days",
+      "blockers": "Business model finalization"
+    }
+  ]
+}
